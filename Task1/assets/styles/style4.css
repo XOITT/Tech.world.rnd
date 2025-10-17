@@ -1,0 +1,99 @@
+.vacation {
+  padding: 60px 8%;
+  background-color: #fff;
+  text-align: center;
+  line-height: 20px;
+}
+
+.vacation-title h2 {
+  font-weight: bold;
+  font-size: 39px;
+  font-family: "Volkhov";
+}
+.vacation-title span {
+  color: #fa7436;
+}
+.vacation-title > p {
+  font-size: 14px;
+  color: #666;
+  font-family: "poppins";
+  margin-top: 10px;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.vacation-top {
+  display: flex;
+  justify-content: center;
+}
+.tree-vector > img {
+  margin-top: 10px;
+  margin-left: 40px;
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+}
+.vacation > .carousel-controls {
+  display: flex;
+  justify-content: end;
+  padding-right: 100px;
+  gap: 15px;
+  padding-top: o;
+}
+
+.arrow {
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.arrow.active {
+  background-color: #ff6b00;
+  color: white;
+  border: none;
+}
+.vacation-grid {
+  padding-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.vacation-card {
+  background: #fff;
+  width: auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.vacation-card img {
+  width: 280px;
+  height: 280px;
+}
+.vacation-info {
+  padding: 15px;
+  text-align: left;
+  display: flex;
+  word-spacing: 50px;
+  justify-content: space-between;
+}
+.vacation-location > .name {
+  font-size: 13px;
+  font-family: "poppins";
+  color: #666;
+}
+
+.vacation-location {
+  display: flex;
+  font-family: "poppins";
+  font-size: 13px;
+  justify-content: space-between;
+  padding-right: 10px;
+  padding-left: 10px;
+}
