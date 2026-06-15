@@ -1,2 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
 
-TEST XOITT DEMO
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reddy's Pizza by Xoiit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #000000 0%, #1a0505 50%, #4a0000 100%);
+      --surface: #000000;
+      --border: rgba(225, 29, 42, 0.3);
+      --red: #E11D2A;
+      --red-glow: rgba(225, 29, 42, 0.6);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text-main);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Subtle Background Animation */
+    .bg-glow {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, var(--red-glow) 0%, rgba(0, 0, 0, 0) 60%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.5;
+      animation: pulse 8s infinite alternate ease-in-out;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.85);
+        opacity: 0.3;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(1.15);
+        opacity: 0.7;
+      }
+    }
+
+    /* Seamless Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      background: var(--surface);
+      border-radius: 28px;
+      padding: 60px 80px;
+      text-align: center;
+      max-width: 600px;
+      box-shadow: 0 0 80px 40px rgba(0, 0, 0, 0.9);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    /* Logos Row */
+    .logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .logos img {
+      height: 80px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: transparent;
+      box-shadow: none;
+      padding: 8px;
+    }
+
+    .logos img:hover {
+      transform: scale(1.08) translateY(-5px);
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .divider {
+      width: 2px;
+      height: 50px;
+      background: var(--border);
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      margin: 0 0 16px 0;
+      background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      margin: 0 0 44px 0;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* Glowing CTA Button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 44px;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--red);
+      text-decoration: none;
+      border-radius: 99px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px var(--red-glow);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -5px var(--red-glow);
+      background: #ef2331;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn svg {
+      margin-left: 12px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .btn:hover svg {
+      transform: translateX(6px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    <div class="logos">
+      <img src="Xoiit_Logo.png" alt="Xoiit Logo">
+      <div class="divider"></div>
+      <img src="ReddysLogo.jpeg" alt="Reddy's Pizza Logo">
+    </div>
+
+    <h1>Reddy's Pizza App</h1>
+    <p>A seamless, modern experience designed by XOIT Transformation. Review the comprehensive layout, flow, and
+      structural blueprint.</p>
+
+    <a href="Reddys-Pizza-App-Layout-Blueprint.html" class="btn">
+      View App Blueprint
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+      </svg>
+    </a>
+  </div>
+</body>
+
+</html>

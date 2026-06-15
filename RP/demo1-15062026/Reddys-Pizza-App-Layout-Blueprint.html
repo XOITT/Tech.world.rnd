@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reddy's Pizza — App Layout & Flow Blueprint</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F9FAFB;
+      --paper-2: #F3F4F6;
+      --ink: #111827;
+      --ink-2: #4B5563;
+      --ink-3: #9CA3AF;
+      --line: #E5E7EB;
+      --line-2: #D1D5DB;
+      --block: #F3F4F6;
+      --block-2: #E5E7EB;
+      --red: #DC2626;
+      --red-soft: #FEE2E2;
+      --hatch-a: #F3F4F6;
+      --hatch-b: #E5E7EB;
+      --sans: 'Space Grotesk', system-ui, sans-serif;
+      --mono: 'Space Mono', ui-monospace, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      padding: 0 0 80px;
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* ---------- Header ---------- */
+    header.doc {
+      border-bottom: 2px solid var(--ink);
+      padding: 44px 0 26px;
+      margin-bottom: 8px;
+    }
+
+    .brandrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, .12);
+    }
+
+    .mark span {
+      color: #fff;
+      font-weight: 700;
+      font-style: italic;
+      font-size: 20px;
+      line-height: 1;
+      margin-top: -2px;
+    }
+
+    .brandrow .bn {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: .01em;
+    }
+
+    .brandrow .bn small {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--ink-3);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-weight: 400;
+      margin-top: 1px;
+    }
+
+    .brandrow .spacer {
+      flex: 1;
+    }
+
+    .brandrow .stamp {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 6px 14px;
+      text-align: right;
+    }
+
+    h1.title {
+      font-size: 46px;
+      line-height: 1.02;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin: 0 0 14px;
+      max-width: 18ch;
+      text-wrap: balance;
+    }
+
+    h1.title em {
+      font-style: italic;
+      color: var(--red);
+    }
+
+    .lede {
+      font-size: 16px;
+      color: var(--ink-2);
+      max-width: 62ch;
+      margin: 0 0 22px;
+      text-wrap: pretty;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta .chip {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .04em;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 11px;
+      color: var(--ink-2);
+    }
+
+    .meta .chip b {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    /* ---------- Section heads ---------- */
+    .section {
+      margin-top: 54px;
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      border-bottom: 1px solid var(--line-2);
+      padding-bottom: 14px;
+      margin-bottom: 28px;
+    }
+
+    .sec-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--red);
+      border-radius: 6px;
+      padding: 4px 9px;
+      letter-spacing: .04em;
+      flex-shrink: 0;
+      align-self: center;
+    }
+
+    .sec-head h2 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      margin: 0;
+    }
+
+    .sec-head .sub {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--ink-3);
+      margin-left: auto;
+      letter-spacing: .02em;
+      max-width: 42ch;
+      text-align: right;
+    }
+
+    /* ---------- Legend ---------- */
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(186px, 1fr));
+      gap: 2px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 30px;
+    }
+
+    .legend .li {
+      background: var(--paper);
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .swatch {
+      width: 34px;
+      height: 30px;
+      border-radius: 5px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .sw-img {
+      background: repeating-linear-gradient(45deg, var(--hatch-a), var(--hatch-a) 5px, var(--hatch-b) 5px, var(--hatch-b) 10px);
+      border: 1px dashed var(--line-2);
+    }
+
+    .sw-field {
+      background: transparent;
+      border: 1.5px dashed var(--ink-3);
+    }
+
+    .sw-cta {
+      background: var(--ink);
+    }
+
+    .sw-cta::after {
+      content: "";
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .sw-bar {
+      background: var(--block);
+      border: 1px solid var(--block-2);
+    }
+
+    .sw-chip {
+      background: transparent;
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      justify-content: center;
+      border: none;
+    }
+
+    .sw-chip i {
+      width: 9px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--block-2);
+      display: block;
+    }
+
+    .legend .lab {
+      font-size: 12.5px;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .legend .lab small {
+      display: block;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: var(--ink-3);
+      font-weight: 400;
+      letter-spacing: .02em;
+      margin-top: 1px;
+    }
+
+    /* ---------- Flow map ---------- */
+    .flow {
+      margin-top: 24px;
+    }
+
+    .flow-stage {
+      margin-bottom: 8px;
+    }
+
+    .flow-rail {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 0;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+
+    .stage {
+      flex: 1 1 200px;
+      min-width: 185px;
+      padding: 0 18px;
+      position: relative;
+    }
+
+    .stage+.stage::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      bottom: 6px;
+      width: 1px;
+      background: repeating-linear-gradient(var(--line-2), var(--line-2) 4px, transparent 4px, transparent 9px);
+    }
+
+    .stage .st-cap {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--red);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .node {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--paper);
+      border: 1px solid var(--line-2);
+      border-radius: 8px;
+      padding: 8px 11px;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      position: relative;
+    }
+
+    .node .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ink);
+      flex-shrink: 0;
+    }
+
+    .node.start .dot {
+      background: var(--red);
+    }
+
+    .node .arr {
+      margin-left: auto;
+      color: var(--ink-3);
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+
+    .node small {
+      display: block;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: var(--ink-3);
+      font-weight: 400;
+      letter-spacing: .01em;
+    }
+
+    .persist {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      background: var(--paper-2);
+      border: 1px dashed var(--line-2);
+      border-radius: 12px;
+      padding: 14px 18px;
+    }
+
+    .persist .pl {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .persist .pchip {
+      font-size: 12.5px;
+      font-weight: 600;
+      background: var(--paper);
+      border: 1px solid var(--line-2);
+      border-radius: 999px;
+      padding: 5px 13px;
+    }
+
+    .persist .pchip.red {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    /* ---------- Screen grid ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+      gap: 30px 26px;
+    }
+
+    .screen {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scr-top {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .scr-id {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--red);
+      letter-spacing: .03em;
+    }
+
+    .scr-name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    .scr-purpose {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--ink-3);
+      line-height: 1.45;
+      margin-top: 10px;
+      letter-spacing: .01em;
+      text-wrap: pretty;
+    }
+
+    /* ---------- Phone frame ---------- */
+    .frame {
+      width: 100%;
+      max-width: 250px;
+      border: 2px solid var(--ink);
+      border-radius: 26px;
+      background: var(--paper);
+      padding: 7px;
+      box-shadow: 0 6px 0 -2px var(--line-2), 0 14px 30px -18px rgba(0, 0, 0, .35);
+    }
+
+    .screenbox {
+      border-radius: 19px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .statusbar {
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      background: var(--paper-2);
+    }
+
+    .statusbar .t {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--ink-2);
+    }
+
+    .statusbar .nub {
+      width: 34px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--line-2);
+    }
+
+    .statusbar .dots {
+      display: flex;
+      gap: 2px;
+    }
+
+    .statusbar .dots i {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--ink-3);
+      display: block;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px;
+      flex: 1;
+    }
+
+    /* zones */
+    .z {
+      position: relative;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .z-lab {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+      line-height: 1.2;
+    }
+
+    .z-sub {
+      font-family: var(--mono);
+      font-size: 7.5px;
+      color: var(--ink-3);
+      letter-spacing: .02em;
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    .z.img {
+      background: repeating-linear-gradient(45deg, var(--hatch-a), var(--hatch-a) 5px, var(--hatch-b) 5px, var(--hatch-b) 10px);
+      border: 1px dashed var(--line-2);
+      align-items: center;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .z.map {
+      background: repeating-linear-gradient(0deg, var(--hatch-a), var(--hatch-a) 9px, var(--hatch-b) 9px, var(--hatch-b) 18px);
+      border: 1px dashed var(--line-2);
+      align-items: center;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .z.bar {
+      background: var(--block);
+      border: 1px solid var(--block-2);
+      padding: 7px 9px;
+    }
+
+    .z.title {
+      background: var(--block-2);
+      padding: 8px 9px;
+    }
+
+    .z.title .z-lab {
+      font-size: 10px;
+      color: var(--ink);
+    }
+
+    .z.field {
+      border: 1.5px dashed var(--ink-3);
+      background: transparent;
+      padding: 8px 9px;
+    }
+
+    .z.cta {
+      background: var(--ink);
+      padding: 9px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .z.cta .z-lab {
+      color: #fff;
+    }
+
+    .z.cta::after {
+      content: "";
+      position: absolute;
+      top: 6px;
+      right: 7px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .z.btn {
+      border: 1.5px solid var(--ink-2);
+      background: transparent;
+      padding: 8px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 8px;
+      background: var(--paper-2);
+      border-radius: 6px;
+    }
+
+    .topbar .ic {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      background: var(--block-2);
+      flex-shrink: 0;
+    }
+
+    .topbar .tt {
+      flex: 1;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--ink-2);
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .row>* {
+      flex: 1;
+    }
+
+    .chips {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .chips i {
+      font-family: var(--mono);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      color: var(--ink-2);
+      background: var(--block);
+      border: 1px solid var(--block-2);
+      border-radius: 999px;
+      padding: 4px 9px;
+      display: block;
+    }
+
+    .chips i.on {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .listrow {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      background: var(--block);
+      border: 1px solid var(--block-2);
+      border-radius: 7px;
+      padding: 6px;
+    }
+
+    .listrow .th {
+      width: 30px;
+      height: 30px;
+      border-radius: 5px;
+      flex-shrink: 0;
+      background: repeating-linear-gradient(45deg, var(--hatch-a), var(--hatch-a) 4px, var(--hatch-b) 4px, var(--hatch-b) 8px);
+      border: 1px dashed var(--line-2);
+    }
+
+    .listrow .ll {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .listrow .ln {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--block-2);
+    }
+
+    .listrow .add {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      background: var(--ink);
+      flex-shrink: 0;
+    }
+
+    .seg {
+      display: flex;
+      background: var(--block);
+      border: 1px solid var(--block-2);
+      border-radius: 7px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .seg i {
+      flex: 1;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      color: var(--ink-2);
+      padding: 5px 0;
+      border-radius: 5px;
+    }
+
+    .seg i.on {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .08);
+    }
+
+    .tip {
+      display: flex;
+      gap: 5px;
+    }
+
+    .tip i {
+      flex: 1;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--ink-2);
+      border: 1px solid var(--block-2);
+      background: var(--block);
+      border-radius: 6px;
+      padding: 6px 0;
+    }
+
+    .tip i.on {
+      border-color: var(--ink);
+      background: var(--paper-2);
+      color: var(--ink);
+    }
+
+    .summary {
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 8px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .summary .sr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary .sr .k {
+      height: 6px;
+      width: 46%;
+      border-radius: 3px;
+      background: var(--block-2);
+    }
+
+    .summary .sr .v {
+      height: 6px;
+      width: 20%;
+      border-radius: 3px;
+      background: var(--block-2);
+    }
+
+    .summary .sr.tot .k {
+      height: 8px;
+      background: var(--ink-3);
+      width: 34%;
+    }
+
+    .summary .sr.tot .v {
+      height: 8px;
+      background: var(--ink);
+      width: 24%;
+    }
+
+    .pay {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .pay i {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--ink-2);
+      border: 1px solid var(--block-2);
+      background: var(--block);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+
+    .pay i::before {
+      content: "";
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink-3);
+      flex-shrink: 0;
+    }
+
+    .pay i.on::before {
+      border-color: var(--red);
+      background: radial-gradient(var(--red) 38%, transparent 42%);
+    }
+
+    .track {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 9px 10px;
+    }
+
+    .track i {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--ink-3);
+      position: relative;
+      padding: 5px 0;
+    }
+
+    .track i::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--line-2);
+      background: #fff;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .track i.done {
+      color: var(--ink);
+    }
+
+    .track i.done::before {
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .track i.now {
+      color: var(--red);
+    }
+
+    .track i.now::before {
+      border-color: var(--red);
+      background: var(--red);
+    }
+
+    .track i:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 16px;
+      width: 2px;
+      height: 14px;
+      background: var(--line-2);
+    }
+
+    .track i.done:not(:last-child)::after {
+      background: var(--ink);
+    }
+
+    .tabbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 7px 6px;
+      background: var(--paper-2);
+      border-radius: 7px;
+      position: relative;
+    }
+
+    .tabbar i {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-family: var(--mono);
+      font-size: 7px;
+      font-weight: 700;
+      color: var(--ink-3);
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    .tabbar i b {
+      width: 15px;
+      height: 15px;
+      border-radius: 4px;
+      background: var(--block-2);
+      display: block;
+    }
+
+    .tabbar i.on {
+      color: var(--red);
+    }
+
+    .tabbar i.on b {
+      background: var(--red);
+    }
+
+    .tabbar .fab {
+      position: absolute;
+      right: 7px;
+      top: -15px;
+      background: #fff;
+      border: 1.5px solid var(--red);
+      color: var(--red);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-family: var(--mono);
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .14);
+    }
+
+    .note {
+      background: var(--red-soft);
+      border: 1px solid #EBB9BB;
+      border-radius: 7px;
+      padding: 7px 9px;
+    }
+
+    .note .z-lab {
+      color: #A21019;
+    }
+
+    .note .z-sub {
+      color: #B5474D;
+    }
+
+    .modal-wrap {
+      position: relative;
+    }
+
+    .modal-dim {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg, rgba(28, 27, 24, .07), rgba(28, 27, 24, .07) 5px, rgba(28, 27, 24, .03) 5px, rgba(28, 27, 24, .03) 10px);
+      border-radius: 6px;
+    }
+
+    .homeind {
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+
+    .homeind i {
+      width: 70px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--line-2);
+      display: block;
+    }
+
+    /* labeled list rows */
+    .listrow .lt {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--ink-2);
+      letter-spacing: .02em;
+      line-height: 1.2;
+    }
+
+    .listrow .lts {
+      font-family: var(--mono);
+      font-size: 7.5px;
+      color: var(--ink-3);
+      margin-top: 2px;
+      letter-spacing: .02em;
+    }
+
+    .lbadge {
+      font-family: var(--mono);
+      font-size: 7px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--red);
+      border-radius: 4px;
+      padding: 3px 6px;
+      align-self: center;
+      letter-spacing: .03em;
+      flex-shrink: 0;
+    }
+
+    /* left-panel pizza builder */
+    .builder {
+      display: flex;
+      gap: 6px;
+    }
+
+    .builder .bpanel {
+      width: 42%;
+      flex-shrink: 0;
+      background: var(--block);
+      border: 1px solid var(--block-2);
+      border-radius: 6px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .builder .bp-h {
+      font-family: var(--mono);
+      font-size: 7.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--ink-2);
+      letter-spacing: .05em;
+      margin-bottom: 1px;
+    }
+
+    .builder .bp-i {
+      font-family: var(--mono);
+      font-size: 7.5px;
+      color: var(--ink-2);
+      background: #fff;
+      border: 1px solid var(--block-2);
+      border-radius: 4px;
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .builder .bp-i span {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .builder .bpreview {
+      flex: 1;
+      border-radius: 6px;
+      background: repeating-linear-gradient(45deg, var(--hatch-a), var(--hatch-a) 5px, var(--hatch-b) 5px, var(--hatch-b) 10px);
+      border: 1px dashed var(--line-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px;
+      min-height: 158px;
+    }
+
+    /* footer */
+    footer.doc {
+      margin-top: 64px;
+      border-top: 2px solid var(--ink);
+      padding-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+
+    footer .fl {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-3);
+      letter-spacing: .02em;
+    }
+
+    footer .fl b {
+      color: var(--ink-2);
+    }
+
+    footer .sign {
+      margin-left: auto;
+      display: flex;
+      gap: 34px;
+    }
+
+    footer .sigbox {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--ink-3);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    footer .sigbox .ln {
+      width: 170px;
+      border-bottom: 1.5px dotted var(--ink-3);
+      height: 30px;
+      margin-bottom: 5px;
+    }
+
+    .callout {
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--red);
+      border-radius: 0 10px 10px 0;
+      padding: 16px 20px;
+      margin-top: 24px;
+      font-size: 13.5px;
+      color: var(--ink-2);
+      max-width: 76ch;
+      text-wrap: pretty;
+    }
+
+    .callout b {
+      color: var(--ink);
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+
+      .frame {
+        box-shadow: none;
+      }
+
+      .section {
+        break-inside: avoid;
+      }
+
+      .screen {
+        break-inside: avoid;
+      }
+    }
+
+    @media (max-width:720px) {
+      .wrap {
+        padding: 0 20px;
+      }
+
+      h1.title {
+        font-size: 34px;
+      }
+
+      .sec-head .sub {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <header class="doc">
+      <div class="brandrow">
+        <div class="mark"><span>R</span></div>
+        <div class="bn">Reddy's Pizza<small>Customer Application</small></div>
+        <div class="spacer"></div>
+        <img src="Xoiit_Logo.png" alt="Xoiit Logo" style="height: 64px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15)); border-radius: 8px; background: rgba(255,255,255,0.03); padding: 4px;">
+      </div>
+      <h1 class="title" style="white-space: nowrap;">App <span style="color: var(--red);">Flow</span> Blueprint</h1>
+      <p class="lede">Structural wireframes for review — they show <b>what sits where</b> on every screen and <b>how the
+          journey connects</b>, without final imagery or colour. Greyscale is intentional: it keeps the conversation on
+        layout and flow. Visual design follows once this structure is signed off.</p>
+      <div class="meta">
+        <div class="chip"><b>Platform</b> · iOS + Android</div>
+        <div class="chip"><b>Currency</b> · AUD</div>
+        <div class="chip"><b>27</b> key screens</div>
+        <div class="chip"><b>7</b> flow stages</div>
+        <div class="chip">Order tracking · WhatsApp</div>
+      </div>
+    </header>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <div class="li">
+        <div class="swatch sw-img"></div>
+        <div class="lab">Image / media<small>photo drops in later</small></div>
+      </div>
+      <div class="li">
+        <div class="swatch sw-bar"></div>
+        <div class="lab">Content block<small>text, card, info</small></div>
+      </div>
+      <div class="li">
+        <div class="swatch sw-field"></div>
+        <div class="lab">Input field<small>typed / tappable</small></div>
+      </div>
+      <div class="li">
+        <div class="swatch sw-cta"></div>
+        <div class="lab">Primary action<small>red dot = main CTA</small></div>
+      </div>
+      <div class="li">
+        <div class="swatch sw-chip"><i></i><i></i><i></i></div>
+        <div class="lab">Chips / options<small>filters, sizes, tabs</small></div>
+      </div>
+    </div>
+
+    <!-- FLOW MAP -->
+    <section class="section">
+      <div class="sec-head">
+        <div class="sec-num">FLOW</div>
+        <h2>The customer journey</h2>
+        <div class="sub">Launch to delivery — branches and persistent navigation shown below</div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-rail">
+          <div class="stage">
+            <div class="st-cap">1 · Onboarding</div>
+            <div class="node start"><span class="dot"></span>Splash<span class="arr">↓</span></div>
+            <div class="node"><span class="dot"></span>Onboarding<small>3 slides</small><span class="arr">↓</span></div>
+            <div class="node"><span class="dot"></span>Sign in / up<small>phone, Google or email</small><span
+                class="arr">↓</span></div>
+            <div class="node"><span class="dot"></span>Set address<small>map + saved</small></div>
+          </div>
+          <div class="stage">
+            <div class="st-cap">2 · Menu</div>
+            <div class="node"><span class="dot"></span>Home<small>greeting · promos</small><span class="arr">⇄</span>
+            </div>
+            <div class="node"><span class="dot"></span>Search<span class="arr">→</span></div>
+            <div class="node"><span class="dot"></span>Product detail<small>customise · 11 add-ons</small></div>
+          </div>
+          <div class="stage">
+            <div class="st-cap">3 · Order</div>
+            <div class="node"><span class="dot"></span>Cart<small>edit · re-customise</small><span class="arr">↓</span>
+            </div>
+            <div class="node"><span class="dot"></span>Deals pop-up<small>skip or add</small><span class="arr">↓</span>
+            </div>
+            <div class="node"><span class="dot"></span>Checkout<small>delivery · tip · pay</small><span
+                class="arr">↓</span></div>
+            <div class="node"><span class="dot"></span>Receipt<small>order ID</small></div>
+          </div>
+          <div class="stage">
+            <div class="st-cap">4 · After order</div>
+            <div class="node"><span class="dot"></span>Status tracking<small>pending → delivered</small><span
+                class="arr">↓</span></div>
+            <div class="node"><span class="dot"></span>Rate &amp; review<small>food · delivery</small></div>
+            <div class="node"><span class="dot"></span>Reorder<small>from history</small></div>
+          </div>
+          <div class="stage">
+            <div class="st-cap">5 · Maintenance</div>
+            <div class="node"><span class="dot"></span>Store offline<small>outside hours / issue</small><span
+                class="arr">↓</span></div>
+            <div class="node"><span class="dot"></span>Maintenance window<small>reopens at…</small></div>
+            <div class="node"><span class="dot"></span>Notify me<small>when open</small></div>
+          </div>
+        </div>
+
+        <div class="persist">
+          <span class="pl">Bottom tabs</span>
+          <span class="pchip">Home</span><span class="pchip">Menu</span><span class="pchip">Favourites</span><span
+            class="pchip">Re-order</span><span class="pchip">Me</span>
+          <span class="pchip red">＋ Cart · floating</span>
+        </div>
+        <div
+          style="font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:8px;letter-spacing:.02em;line-height:1.5;">
+          “Browse” = the full menu / catalogue (renamed from “Menu”). Cart is a floating button, not a tab.</div>
+        <div class="persist">
+          <span class="pl">Account hub</span>
+          <span class="pchip">Offers &amp; Wallet</span><span class="pchip">Notifications</span><span
+            class="pchip">Addresses</span><span class="pchip">Payments</span><span class="pchip">Settings</span><span
+            class="pchip">Help &amp; Support</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <b>How to read this document:</b> each screen below is drawn as a simple frame of stacked zones. The label
+        inside every zone names what goes there. Where the brief calls for several visual treatments — <b>Home</b>,
+        <b>Product detail</b> and <b>Checkout</b> each have 3 directions in the prototype — only the structure is shown
+        here, since the layout is shared across directions.
+      </div>
+    </section>
+
+    <!-- SCREEN SECTIONS rendered by JS -->
+    <div id="sections"></div>
+
+    <footer class="doc">
+      <div class="fl">Prepared by <b>XOIT Transformation Pvt Ltd</b>
+        <div class="bn">Reddy's Pizza<small>Customer Application</small></div>
+      </div>
+      <div class="sign">
+        <div class="stamp" style="font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-top: auto; text-align: right;">v1.0.0 · 2026-06-15 Design Layout</div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    /* ---------- wireframe zone renderers ---------- */
+    function lab(l, s) { return `<span class="z-lab">${l}</span>` + (s ? `<span class="z-sub">${s}</span>` : ''); }
+
+    const Z = {
+      status() { return `<div class="statusbar"><span class="t">9:41</span><span class="nub"></span><span class="dots"><i></i><i></i><i></i></span></div>`; },
+      topbar(t, left, right) { return `<div class="topbar"><div class="ic" style="${left === false ? 'visibility:hidden' : ''}"></div><div class="tt">${t}</div><div class="ic" style="${right === false ? 'visibility:hidden' : ''}"></div></div>`; },
+      img(l, s, h) { return `<div class="z img" style="height:${h || 60}px">${lab(l, s)}</div>`; },
+      map(l, s, h) { return `<div class="z map" style="height:${h || 80}px">${lab(l, s)}</div>`; },
+      title(l, s) { return `<div class="z title">${lab(l, s)}</div>`; },
+      bar(l, s, h) { return `<div class="z bar" style="${h ? `height:${h}px` : ''}">${lab(l, s)}</div>`; },
+      field(l, s) { return `<div class="z field">${lab(l, s)}</div>`; },
+      cta(l, s) { return `<div class="z cta">${lab(l, s)}</div>`; },
+      btn(l, s) { return `<div class="z btn">${lab(l, s)}</div>`; },
+      note(l, s) { return `<div class="z note">${lab(l, s)}</div>`; },
+      chips(arr) { return `<div class="chips">${arr.map((c, i) => `<i class="${i === 0 ? 'on' : ''}">${c}</i>`).join('')}</div>`; },
+      seg(arr, on) { return `<div class="seg">${arr.map((c, i) => `<i class="${i === (on ?? 0) ? 'on' : ''}">${c}</i>`).join('')}</div>`; },
+      tip(arr) { return `<div class="tip">${arr.map((c, i) => `<i class="${i === 1 ? 'on' : ''}">${c}</i>`).join('')}</div>`; },
+      rows(n) { let r = ''; for (let i = 0; i < n; i++) r += `<div class="listrow"><div class="th"></div><div class="ll"><div class="ln" style="width:80%"></div><div class="ln" style="width:55%"></div></div><div class="add"></div></div>`; return r; },
+      pay(arr) { return `<div class="pay">${arr.map((c, i) => `<i class="${i === 0 ? 'on' : ''}">${c}</i>`).join('')}</div>`; },
+      summary(rows) { return `<div class="summary">${rows.map(r => `<div class="sr ${r === 'TOTAL' ? 'tot' : ''}"><span class="k"></span><span class="v"></span></div>`).join('')}</div>`; },
+      track(steps) { return `<div class="track">${steps.map(s => `<i class="${s[1]}">${s[0]}</i>`).join('')}</div>`; },
+      tabbar(on) { const t = [['Home', 'home'], ['Menu', 'menu'], ['Favourites', 'favourites'], ['Re-order', 'reorder'], ['Me', 'me']]; return `<div class="tabbar"><span class="fab">＋ Cart · floats</span>${t.map(x => `<i class="${x[1] === on ? 'on' : ''}"><b></b>${x[0]}</i>`).join('')}</div>`; },
+      lrows(items) { return items.map(it => `<div class="listrow"><div class="th"></div><div class="ll"><div class="lt">${it.n}</div>${it.s ? `<div class="lts">${it.s}</div>` : ''}</div>${it.badge ? `<span class="lbadge">${it.badge}</span>` : `<div class="add"></div>`}</div>`).join(''); },
+      row(a, b) { return `<div class="row">${a}${b}</div>`; },
+      spacer(h) { return `<div style="height:${h || 4}px"></div>`; },
+    };
+
+    function frame(zones) {
+      return `<div class="frame"><div class="screenbox">${Z.status()}<div class="content">${zones.join('')}</div><div class="homeind"><i></i></div></div></div>`;
+    }
+
+    /* ---------- screen data ---------- */
+    const SECTIONS = [
+      {
+        num: '01', title: 'Launch & Onboarding', sub: 'First-run · account creation · delivery location',
+        screens: [
+          {
+            id: '1.1', name: 'Splash', purpose: 'Brand load screen. Logo + tagline, auto-advances after a few seconds.',
+            zones: [Z.img('Logo lockup', 'Reddy\'s mark', 140), Z.title('Tagline', '“Fusion at its Best”'), Z.bar('Loading dots', null, 18)]
+          },
+          {
+            id: '1.2', name: 'Onboarding', purpose: 'Three swipeable slides selling speed, customisation and wallet rewards. Skip available.',
+            zones: [Z.img('Hero image', 'full-bleed pizza', 150), Z.title('Slide headline'), Z.bar('Supporting copy', null, 30), Z.chips(['•', '◦', '◦']), Z.cta('Next  →'), Z.bar('Sign in link', null, 20)]
+          },
+          {
+            id: '1.3', name: 'Sign in / Sign up', purpose: 'Phone-first auth with OTP. Google and email are the only alternates (no other social logins), plus a Continue-as-guest option. One account if new.',
+            zones: [Z.img('Banner image', null, 70), Z.title('Sign in or sign up'), Z.field('Country + phone', '🇦🇺 +61 · number'), Z.cta('Continue'), Z.bar('— OR —', null, 16), Z.row(Z.btn('Google'), Z.btn('Email')), Z.btn('Continue as guest'), Z.bar('Terms & privacy', null, 16)]
+          },
+          {
+            id: '1.4', name: 'Address / Location', purpose: 'Confirm delivery point on map, use GPS, or pick a saved address. One address can be marked Default. Postcode validated (4-digit).',
+            zones: [Z.map('Map with pin', 'GPS · drag to set', 90), Z.field('Search address / postcode'), Z.btn('◎  Use current location'), Z.bar('SAVED', null, 16), Z.lrows([{ n: 'Saved Address 1', s: 'Home · 1240 Market St', badge: 'Default' }, { n: 'Saved Address 2', s: 'Work · 88 Pitt St' }]), Z.btn('＋ Add new address')]
+          },
+        ]
+      },
+      {
+        num: '02', title: 'Home, Discovery & States', sub: 'Home · browse · search · favourites · re-order · store-offline',
+        screens: [
+          {
+            id: '2.1', name: 'Home', purpose: 'Greeting, current address, wallet & offers strip, promos, popular carousel and recommendations. Entry to everything.',
+            zones: [Z.topbar('Greeting · address · 🔔'), Z.field('Search pizzas, sides, drinks…'), Z.bar('Wallet & offers strip', null, 34), Z.img('Promo hero banner', null, 72), Z.chips(['All', 'Veg', 'Non-Veg', 'Pizza', 'Combos']), Z.bar('“Popular” carousel', null, 52), Z.lrows([{ n: 'Pepperoni Pizza', s: 'Non-veg · $16.90' }, { n: 'Margherita Pizza', s: 'Veg · $13.90' }]), Z.tabbar('home')]
+          },
+          {
+            id: '2.2', name: 'Menu', purpose: 'Full catalogue grouped by department, with Veg / Non-Veg filters and diet dots.',
+            zones: [Z.topbar('← Menu · 56 items'), Z.chips(['All', 'Veg', 'Non-Veg', 'Pizza', 'Kebabs']), Z.bar('SECTION HEADER', null, 16), Z.lrows([{ n: 'Margherita Pizza', s: 'Veg · $13.90' }, { n: 'Pepperoni Pizza', s: 'Non-veg · $16.90' }, { n: 'Chicken Kebab', s: 'Non-veg · $12.50' }, { n: 'Veg Burger', s: 'Veg · $9.90' }]), Z.tabbar('menu')]
+          },
+          {
+            id: '2.3', name: 'Search', purpose: 'Focused search with recent terms and live results in real food names. Each result opens product detail.',
+            zones: [Z.topbar('← Search field', true, false), Z.bar('RECENT searches', null, 28), Z.bar('RESULTS', null, 16), Z.lrows([{ n: 'Pepperoni Pizza', s: 'Non-veg · $16.90' }, { n: 'Margherita Pizza', s: 'Veg · $13.90' }, { n: 'Chicken Kebab', s: 'Non-veg · $12.50' }, { n: 'Veg Burger', s: 'Veg · $9.90' }])]
+          },
+          {
+            id: '2.4', name: 'Favourites', purpose: 'Items the customer has saved (heart). Quick add to cart or remove from favourites. Opened from the Favourites tab.',
+            zones: [Z.topbar('← Favourites'), Z.bar('SAVED ITEMS', null, 14), Z.lrows([{ n: 'Margherita Pizza', s: 'Veg · $13.90' }, { n: 'Chicken Kebab', s: 'Non-veg · $12.50' }, { n: 'Veg Burger', s: 'Veg · $9.90' }]), Z.tabbar('favourites')]
+          },
+          {
+            id: '2.5', name: 'Re-order', purpose: 'Past orders ready to repeat in one tap. Opened from the Re-order tab.',
+            zones: [Z.topbar('← Re-order'), Z.bar('PREVIOUS ORDERS', null, 14), Z.lrows([{ n: 'Order #RP-2041', s: '2× Pepperoni Pizza', badge: 'Reorder' }, { n: 'Order #RP-2033', s: 'Chicken Kebab · Veg Burger', badge: 'Reorder' }]), Z.tabbar('reorder')]
+          },
+          {
+            id: '2.6', name: 'Store offline (Maintenance)', purpose: 'Shown when the store is offline / outside opening hours. Explains the maintenance window and when ordering resumes.',
+            zones: [Z.img('Illustration / icon', null, 80), Z.title('We’re currently offline'), Z.bar('Maintenance window · reopens at 11:00', null, 40), Z.btn('Notify me when open'), Z.btn('View store hours')]
+          },
+        ]
+      },
+      {
+        num: '03', title: 'Product & Customisation', sub: 'Build a pizza · crust, size, up to 11 add-ons',
+        screens: [
+          {
+            id: '3.1', name: 'Product detail', purpose: 'Hero image, favourite (heart) action, size + crust selectors, add-on list with quantity steppers (max 11 incl. defaults), live price. “Add to cart” pinned at base.',
+            zones: [Z.img('Product hero', 'share · ♡ favourite', 86), Z.title('Product name · price'), Z.bar('Description · rating', null, 28), Z.btn('♡  Add to favourites'), Z.bar('SIZE', null, 14), Z.seg(['S', 'M', 'L'], 1), Z.bar('CRUST', null, 14), Z.seg(['Thin', 'Classic', 'Pan']), Z.bar('ADD-ONS · qty steppers', null, 14), Z.rows(2), Z.cta('Add to cart  ·  $—')]
+          },
+          {
+            id: '3.2', name: 'Live builder (variant)', purpose: 'Engaging direction of detail. New layout: toppings sit in a left-hand panel while the pizza preview on the right updates live as you add. Same data as 3.1.',
+            zones: [Z.topbar('← Build your pizza'),
+              `<div class="builder"><div class="bpanel"><div class="bp-h">Toppings</div><div class="bp-i">Cheese <span>＋</span></div><div class="bp-i">Pepperoni <span>＋</span></div><div class="bp-i">Olives <span>＋</span></div><div class="bp-i">Mushroom <span>＋</span></div><div class="bp-i">Capsicum <span>＋</span></div><div class="bp-i">Onion <span>＋</span></div><div class="bp-i">+ more</div></div><div class="bpreview"><span class="z-lab">Live pizza preview<br>updates as you build</span></div></div>`,
+            Z.bar('SIZE / CRUST', null, 14), Z.seg(['S', 'M', 'L'], 1), Z.cta('Add to cart  ·  $—')]
+          },
+        ]
+      },
+      {
+        num: '04', title: 'Cart & Checkout', sub: 'Edit cart · deals prompt · delivery or pickup · pay · receipt',
+        screens: [
+          {
+            id: '4.1', name: 'Cart', purpose: 'Line items with re-customise (size, crust, add-ons, qty). No instant checkout — “Next” leads to the deals prompt first.',
+            zones: [Z.topbar('← Your cart · 2 items'), Z.rows(2), Z.bar('Re-customise / qty controls', null, 26), Z.summary(['', '', '']), Z.cta('Next  →')]
+          },
+          {
+            id: '4.2', name: 'Deals pop-up', purpose: 'Before checkout: a sheet of Special Deals + Top-10 items (admin-controlled). Add something or skip with “Next”.',
+            zones: [`<div class="modal-wrap">` + frameInner([Z.bar('Cart behind (dimmed)', null, 40), Z.title('You might also like'), Z.rows(2), Z.cta('Continue to checkout'), Z.bar('Skip', null, 18)]) + `<div class="modal-dim"></div></div>`,], raw: true
+          },
+          {
+            id: '4.3', name: 'Checkout', purpose: 'Delivery or takeaway with ready-time + schedule, coupon code, tip in AUD ($3/$5/$8/other), payment (card, wallet, cash), delivery fee + surcharge + GST, place order.',
+            zones: [Z.topbar('← Checkout'), Z.seg(['Delivery', 'Pickup']), Z.bar('Ready time · schedule', null, 26), Z.bar('Deliver to · address', null, 26), Z.field('Apply coupon / promo code'), Z.bar('ADD A TIP', null, 14), Z.tip(['$3', '$5', '$8', 'Other']), Z.bar('PAYMENT', null, 14), Z.pay(['Card', 'Wallet pay', 'Cash on delivery']), Z.summary(['', '', '', '', 'TOTAL']), Z.cta('Place order')]
+          },
+          {
+            id: '4.4', name: 'Pick-up', purpose: 'Shown when “Pickup” is chosen at checkout: pickup time, store address, and receiver name & number — instead of a delivery address.',
+            zones: [Z.topbar('← Pick-up details'), Z.bar('PICKUP TIME · default 15 min', null, 26), Z.bar('Store address', null, 40), Z.field('Receiver name'), Z.field('Receiver mobile number'), Z.bar('PAYMENT', null, 14), Z.pay(['Card', 'Wallet pay', 'Cash on pickup']), Z.cta('Confirm pickup order')]
+          },
+          {
+            id: '4.5', name: 'Receipt', purpose: 'Confirmation with order ID, digital receipt and a clear route into status tracking.',
+            zones: [Z.bar('✓ Order confirmed', null, 40), Z.title('Order #RP-2048'), Z.bar('Digital receipt summary', null, 60), Z.summary(['', '', 'TOTAL']), Z.cta('Track status  →'), Z.btn('Download receipt')]
+          },
+        ]
+      },
+      {
+        num: '05', title: 'Status Tracking & Feedback', sub: 'Order status · rate the order',
+        screens: [
+          {
+            id: '5.1', name: 'Status tracking', purpose: 'Order status only — no live GPS or ETA. Stages: Pending → Preparing → Ready → Delivered. For Cash-on-Delivery the “Payment successful” stage is hidden.',
+            zones: [Z.topbar('← Order #RP-2048'), Z.title('Current status', 'Preparing'), Z.track([['Pending', 'done'], ['Preparing', 'now'], ['Ready', ''], ['Delivered', '']]), Z.btn('Contact store')]
+          },
+          {
+            id: '5.2', name: 'Rate & feedback', purpose: 'Star ratings for food, delivery speed and service, plus an optional comment.',
+            zones: [Z.topbar('← Rate your order'), Z.img('Order thumbnail', null, 46), Z.bar('FOOD ★★★★★', null, 22), Z.bar('DELIVERY ★★★★☆', null, 22), Z.bar('SERVICE ★★★★★', null, 22), Z.field('Add a comment…'), Z.cta('Submit')]
+          },
+        ]
+      },
+      {
+        num: '06', title: 'Offers & Wallet', sub: 'Promo codes · coupons · wallet history',
+        screens: [
+          {
+            id: '6.1', name: 'Offers & Wallet', purpose: 'Promo codes, active coupons, referral rewards, and the Reddy’s wallet balance with cash-back transaction history.',
+            zones: [Z.topbar('← Offers & wallet'), Z.bar('Wallet balance · cash-back', null, 34), Z.field('Enter promo code'), Z.cta('Apply'), Z.bar('ACTIVE OFFERS', null, 14), Z.rows(2), Z.bar('WALLET HISTORY', null, 14), Z.rows(1)]
+          },
+        ]
+      },
+      {
+        num: '07', title: 'Account & Support', sub: 'Profile · saved data · alerts · help',
+        screens: [
+          {
+            id: '7.1', name: 'Profile / Me', purpose: 'Account home: avatar, quick links to orders, wallet, addresses, payments, settings and support.',
+            zones: [Z.topbar('Me', false), Z.bar('Avatar · name · phone', null, 46), Z.rows(3), Z.bar('Settings · Help · Sign out', null, 30), Z.tabbar('me')]
+          },
+          {
+            id: '7.2', name: 'Order history', purpose: 'Past and active orders with status. Tap to track, view receipt, rate or reorder in one tap. (Re-order tab opens the quick list, 2.5.)',
+            zones: [Z.topbar('← My orders'), Z.seg(['Active', 'Past']), Z.rows(4), Z.btn('↻ Reorder'), Z.tabbar('me')]
+          },
+          {
+            id: '7.3', name: 'Addresses', purpose: 'Manage saved delivery addresses with labels (Home, Work) and a Default. Add, edit or remove.',
+            zones: [Z.topbar('← Addresses'), Z.cta('＋ Add new address'), Z.lrows([{ n: 'Saved Address 1', s: 'Home · 1240 Market St', badge: 'Default' }, { n: 'Saved Address 2', s: 'Work · 88 Pitt St' }, { n: 'Saved Address 3', s: 'Mum’s place' }])]
+          },
+          {
+            id: '7.4', name: 'Payment methods', purpose: 'Saved cards and the Reddy’s wallet. Add or remove; choose a default for checkout. (No Apple Pay.)',
+            zones: [Z.topbar('← Payment methods'), Z.bar('SAVED CARDS', null, 14), Z.rows(2), Z.btn('＋ Add card'), Z.bar('Wallet pay', null, 26)]
+          },
+          {
+            id: '7.5', name: 'Notifications', purpose: 'Order updates, offers and alerts (push / SMS / email). Mark all read.',
+            zones: [Z.topbar('← Notifications'), Z.rows(5)]
+          },
+          {
+            id: '7.6', name: 'Settings', purpose: 'Notification channels, language, account and privacy preferences.',
+            zones: [Z.topbar('← Settings'), Z.bar('NOTIFICATIONS', null, 14), Z.rows(2), Z.bar('PREFERENCES', null, 14), Z.rows(2), Z.bar('ACCOUNT · privacy', null, 26)]
+          },
+          {
+            id: '7.7', name: 'Help & Support', purpose: 'FAQs and contact options (email / phone). No live chat.',
+            zones: [Z.topbar('← Help'), Z.field('Search help articles'), Z.bar('FAQ topics', null, 14), Z.rows(3), Z.btn('Contact support · email / phone')]
+          },
+        ]
+      },
+    ];
+
+    /* inner frame (no outer status bar) for modal illustration */
+    function frameInner(zones) {
+      return `<div class="screenbox">${Z.status()}<div class="content">${zones.join('')}</div><div class="homeind"><i></i></div></div>`;
+    }
+
+    /* ---------- render ---------- */
+    function screenCard(s) {
+      const body = s.raw ? `<div class="frame">${s.zones.join('')}</div>` : frame(s.zones);
+      return `<div class="screen">
+    <div class="scr-top"><span class="scr-id">${s.id}</span><span class="scr-name">${s.name}</span></div>
+    ${body}
+    <div class="scr-purpose">${s.purpose}</div>
+  </div>`;
+    }
+    function sectionBlock(sec) {
+      return `<section class="section">
+    <div class="sec-head"><div class="sec-num">${sec.num}</div><h2>${sec.title}</h2><div class="sub">${sec.sub}</div></div>
+    <div class="grid">${sec.screens.map(screenCard).join('')}</div>
+  </section>`;
+    }
+    document.getElementById('sections').innerHTML = SECTIONS.map(sectionBlock).join('');
+  </script>
+</body>
+
+</html>
