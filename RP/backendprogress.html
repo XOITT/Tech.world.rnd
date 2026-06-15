@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddy's Pizza - Backend Gap Analysis</title>
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0d0f12;
+            --card-bg: #151922;
+            --accent-primary: #ff4757;
+            --accent-secondary: #ffa502;
+            --text-main: #f1f2f6;
+            --text-muted: #a4b0be;
+            --success: #2ed573;
+            --pending: #eccc68;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --gradient-accent: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2.5rem 1.5rem;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 71, 87, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 165, 2, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto 3rem auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* Controls / Filter Section */
+        .controls {
+            max-width: 1200px;
+            margin: 0 auto 2rem auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background-color: rgba(21, 25, 34, 0.6);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn:hover {
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn.active {
+            background: var(--gradient-accent);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .stat-dot.success { background-color: var(--success); }
+        .stat-dot.pending { background-color: var(--pending); }
+
+        /* Grid Layout */
+        .grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .summary-stats {
+                justify-content: space-around;
+            }
+        }
+
+        /* Microservice Cards */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 1.75rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 71, 87, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .progress-container {
+            width: 100px;
+            background-color: rgba(255, 255, 255, 0.05);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-accent);
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        /* Items List */
+        .items-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.01);
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .list-item:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-top: 0.15rem;
+        }
+
+        .badge.completed {
+            background-color: rgba(46, 213, 115, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(46, 213, 115, 0.2);
+        }
+
+        .badge.pending {
+            background-color: rgba(236, 204, 104, 0.15);
+            color: var(--pending);
+            border: 1px solid rgba(236, 204, 104, 0.2);
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+        }
+
+        .item-desc {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+        }
+
+        /* Footer styling */
+        footer {
+            max-width: 1200px;
+            margin: 4rem auto 0 auto;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>REDDY'S PIZZA BACKEND</h1>
+        <p class="subtitle">BRD Functional Requirements vs Implementation Gap Analysis (Backend Only)</p>
+    </header>
+
+    <div class="controls">
+        <div class="filter-buttons">
+            <button class="btn active" onclick="filterItems('all')">Show All</button>
+            <button class="btn" onclick="filterItems('completed')">Completed Only</button>
+            <button class="btn" onclick="filterItems('pending')">Pending Only</button>
+        </div>
+        <div class="summary-stats">
+            <div class="stat-item">
+                <span class="stat-dot success"></span>
+                <span>Completed Backend Features</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-dot pending"></span>
+                <span>Pending Backend Gaps</span>
+            </div>
+        </div>
+    </div>
+
+    <main class="grid">
+        
+        <!-- USER AUTHENTICATION & REGISTRATION -->
+        <section class="card" id="auth-card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">1. User Authentication</h2>
+                    <p class="progress-text">60% Implemented</p>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 60%"></div>
+                </div>
+            </div>
+            <ul class="items-list">
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.1 Sign Up / Registration API</div>
+                        <div class="item-desc">API endpoints for email, phone, and standard profile registration values.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.1 Secure Login via Password</div>
+                        <div class="item-desc">Secure email and password verification with secure hashing algorithms.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.1 Secure Login via OTP</div>
+                        <div class="item-desc">OTP dispatch integrations via BulkGate SMS gateway and server-side verification pipelines.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.1 Google Social Login Handler</div>
+                        <div class="item-desc">Google authentication handlers validating ID tokens and generating corresponding JWT keys.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.1 Password Reset Trigger</div>
+                        <div class="item-desc">Authentication handlers to request forgot password tokens and securely update credentials in the database.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.8 Designation-Based Authorization Middleware</div>
+                        <div class="item-desc">Database roles and middleware security checks to differentiate Super Admin, Store Manager, Owner, and Team permissions.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.1 Multiple Delivery Address Storage</div>
+                        <div class="item-desc">Backend DB schema modifications to store and load multiple saved addresses per customer user.</div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- MENU & CATALOG MANAGEMENT -->
+        <section class="card" id="catalog-card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">2. Menu & Catalog</h2>
+                    <p class="progress-text">90% Implemented</p>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 90%"></div>
+                </div>
+            </div>
+            <ul class="items-list">
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.2 Department Management API</div>
+                        <div class="item-desc">Hierarchical product department structures supporting order indexes and DisplayOrder variables.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.2 Sub-Department Classification</div>
+                        <div class="item-desc">Grouping and sorting mechanism for menu items under relevant categorization tabs.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.2 Customizations Database Relations</div>
+                        <div class="item-desc">Database schema and APIs mapping crusts, sizes, toppings, and addons to main items.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.2 Add-on Quantity Limits Constraint</div>
+                        <div class="item-desc">Enforcing DefaultQuantity and MaxQuantity limits (maximum 11 total addons constraint) within the CQRS pipeline.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.2 Deals & Promo Codes Storage</div>
+                        <div class="item-desc">CQRS execution steps to configure global deals, combos, and coupon records in Catalog Db.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.2 Menu Search and Filters API</div>
+                        <div class="item-desc">Searching and filtering backend parameters supporting veg/non-veg status, price ranges, and names.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.3 Store-Level Deal Overrides</div>
+                        <div class="item-desc">Backend database configuration mappings enabling stores to exclude or override specific global deals.</div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- CART & ORDER MANAGEMENT -->
+        <section class="card" id="order-card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">3. Cart & Order</h2>
+                    <p class="progress-text">60% Implemented</p>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 60%"></div>
+                </div>
+            </div>
+            <ul class="items-list">
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.3 Shopping Cart State Machine</div>
+                        <div class="item-desc">Handlers to manage persistent cart states, adding/updating items, and calculating subtotal values.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.3 Cart Clear Endpoint</div>
+                        <div class="item-desc">Endpoint to empty a customer's cart state upon order placement or customer request.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.4 Checkout Order Generation</div>
+                        <div class="item-desc">Creating order entries from cart items, copying snapshots of customer details, prices, and store context.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.4 Order Status Tracker Pipeline</div>
+                        <div class="item-desc">State transition logic with event logging detailing pending/preparing/ready/delivered stages.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.8 Feedback Rating Storage API</div>
+                        <div class="item-desc">Ingestion endpoints receiving food, speed, and service ratings and linking them to order objects.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.4 Pre-Orders & Order Scheduling Dispatcher</div>
+                        <div class="item-desc">Asynchronous scheduler database queue and worker process executing pickup/delivery slots for orders.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.4 Australian Postal Code Validation Logic</div>
+                        <div class="item-desc">Enforcing strict regex validation rules to restrict zip code properties to 4-digit formatting.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.4 Predefined Tip Value Integration</div>
+                        <div class="item-desc">Handling fixed dollar tips ($3, $5, $8 or Custom) and updating checkout total calculations.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.4 Holiday and Weekend Surcharges</div>
+                        <div class="item-desc">Auto-calculation engine applying holiday/weekend surcharges dynamically based on store calendar parameters.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.5 COD Cash on Delivery State Modification</div>
+                        <div class="item-desc">Restructuring tracking events to omit 'Payment Successful' stage transitions when COD is chosen.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.5 GPS Real-Time Coordinate Ingestion</div>
+                        <div class="item-desc">Real-time GPS coordinator endpoints receiving delivery tracking coordinates (Phase 2).</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.1 Epson Laser Bluetooth Formatting Service</div>
+                        <div class="item-desc">Kitchen docket printing generation layer constructing print-ready streams separated by departments.</div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- STORE OPERATIONS & CONFIGURATION -->
+        <section class="card" id="store-card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">4. Store Operations</h2>
+                    <p class="progress-text">75% Implemented</p>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 75%"></div>
+                </div>
+            </div>
+            <ul class="items-list">
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.2 Business Profiling Gaps</div>
+                        <div class="item-desc">Database schema and operations storing verified corporate profiles and documents.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.3 Store Details Registry</div>
+                        <div class="item-desc">Store mapping models associating store managers, contact, status, and physical location coordinates.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.3 Store Operating Hours Schedule</div>
+                        <div class="item-desc">StoreHours schema holding start, close, and special holiday hours mapped day-wise.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.3 Catalog to Store Association</div>
+                        <div class="item-desc">Dynamic menu rendering filters linking active menu items specifically to individual stores.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.4 / 3.9.3 Store Parameters Configuration</div>
+                        <div class="item-desc">CQRS endpoint pipeline updating delivery fees, surcharge, CoD enablement, and AUD tip sets.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.3 Store Deals and Combos Association</div>
+                        <div class="item-desc">Enabling and disabling specific combos or special deals mapping per store ID.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="completed">
+                    <span class="badge completed">Completed</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.3 Employee Operations Log</div>
+                        <div class="item-desc">Database structures and API punch actions recording employee clock-in and clock-out timelines.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.3 Sales Analytics Ingestion & Processing</div>
+                        <div class="item-desc">Aggregation queries compiling daily revenue statistics and identifying top 10 best-selling items.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.8 Super Admin Status Toggle Webhook</div>
+                        <div class="item-desc">Event-driven integration publishing notifications to the Super Admin whenever a store status changes.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.2 Promotional Broadcasting Dispatcher</div>
+                        <div class="item-desc">Communication hub pipeline pushing announcements, alerts, and promotions via SMS or WhatsApp.</div>
+                    </div>
+                </li>
+                <li class="list-item" data-status="pending">
+                    <span class="badge pending">Pending</span>
+                    <div class="item-info">
+                        <div class="item-title">3.9.3 Kitchen Queue Display Timers</div>
+                        <div class="item-desc">Kitchen queue data structure API mapping order cooking priorities and color state intervals (Phase 2).</div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Reddy's Pizza Backend Architecture Assessment | Current Date: 2026-06-14</p>
+    </footer>
+
+    <script>
+        function filterItems(status) {
+            // Update Active Class on buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Set current active button
+            event.target.classList.add('active');
+
+            const items = document.querySelectorAll('.list-item');
+            items.forEach(item => {
+                const itemStatus = item.getAttribute('data-status');
+                if (status === 'all') {
+                    item.style.display = 'flex';
+                } else if (status === 'completed' && itemStatus === 'completed') {
+                    item.style.display = 'flex';
+                } else if (status === 'pending' && itemStatus === 'pending') {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
