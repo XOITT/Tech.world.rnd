@@ -100,6 +100,7 @@
             line-height: 1.6;
             transition: background-color 0.3s, color 0.3s;
             -webkit-font-smoothing: antialiased;
+            font-size: clamp(14px, 1.6vw, 16px);
         }
 
         h1, h2, h3, h4 {
@@ -107,6 +108,13 @@
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 0.5em;
+        }
+
+        /* Ensure images and SVGs scale to container to prevent overflow */
+        img, svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
 
         h1 {
@@ -236,7 +244,7 @@
             padding: 2rem 1.5rem;
             position: sticky;
             top: 0;
-            height: 100vh;
+            min-height: 100vh;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -357,7 +365,7 @@
         }
 
         .doc-title {
-            font-size: 3.5rem;
+            font-size: clamp(1.75rem, 5vw, 3.5rem);
             color: var(--primary);
             line-height: 1.1;
             margin-bottom: 1rem;
@@ -365,7 +373,7 @@
         }
 
         .doc-subtitle {
-            font-size: 1.5rem;
+            font-size: clamp(0.95rem, 2.2vw, 1.5rem);
             color: var(--text-secondary);
             margin-bottom: 2rem;
             font-weight: 500;
@@ -419,6 +427,8 @@
             padding: 14px 18px;
             text-align: left;
             font-size: 0.95rem;
+            white-space: normal;
+            word-break: break-word;
         }
 
         th {
@@ -874,10 +884,11 @@
             /* Sidebar becomes a slide-in drawer */
             .sidebar {
                 position: fixed;
-                left: -300px;
+                left: -100%;
                 top: 0;
                 bottom: 0;
-                width: 280px;
+                width: 78vw;
+                max-width: 320px;
                 z-index: 500;
                 transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 box-shadow: none;
@@ -889,7 +900,8 @@
             }
 
             .main-content {
-                padding: 2rem 1.5rem;
+                padding: 1.25rem 1rem;
+                margin-left: 0;
             }
 
             .doc-title { font-size: 2.4rem; }
@@ -1383,6 +1395,74 @@
 
         .brandrow .spacer {
             flex: 1;
+        }
+
+        /* Ensure page uses full viewport width and avoids small horizontal overflow */
+        html, body {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        @media (max-width: 992px) {
+            .doc-header-frame, .doc-footer-frame {
+                padding: 10px 12px;
+            }
+
+            .main-content {
+                margin: 0;
+                max-width: 100%;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .diagram-container.arch-diagram {
+                margin-left: 0;
+                margin-right: 0;
+                width: auto;
+                max-width: 100%;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body { overflow-x: hidden; }
+
+            .mobile-header { z-index: 700; }
+
+            .sidebar { padding: 1rem; }
+
+            .nav-item a { padding: 12px 14px; font-size: 0.95rem; }
+
+            .doc-cover { border-radius: 10px; }
+
+            .doc-header-frame, .doc-footer-frame {
+                padding: 8px 10px;
+                font-size: 0.78rem;
+            }
+
+            .doc-cover {
+                padding: 1.75rem 1rem;
+            }
+
+            .meta-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .logo-img { max-height: 40px; }
+
+            .mobile-logo img { height: 22px; }
+
+            /* Ensure large card components don't create horizontal scroll */
+            .spotlight-grid, .schema-service-body, .pipeline-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Improve touch targets for mobile */
+            .schema-control-btn, .theme-toggle-btn, .schema-table-count {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
