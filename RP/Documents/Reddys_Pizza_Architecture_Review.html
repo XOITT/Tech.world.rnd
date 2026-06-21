@@ -1,0 +1,3131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddy's Pizza Platform - Technical Architecture Review</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Mermaid for dynamic architecture diagrams (CORS-friendly for local file:// view) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            securityLevel: 'loose',
+            flowchart: {
+                curve: 'basis',
+                htmlLabels: true,
+                useMaxWidth: true,
+                nodeSpacing: 45,
+                rankSpacing: 65,
+                padding: 16
+            },
+            themeVariables: {
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontSize: '15px',
+                primaryColor: '#e0f2fe',
+                primaryTextColor: '#0f172a',
+                primaryBorderColor: '#1f4e79',
+                lineColor: '#2e75b6',
+                secondaryColor: '#f1f5f9',
+                tertiaryColor: '#ffffff',
+                clusterBkg: '#f8fafc',
+                clusterBorder: '#94a3b8',
+                edgeLabelBackground: '#ffffff'
+            }
+        });
+    </script>
+    <style>
+        :root {
+            /* ═══ Original Blue · Slate System ═══ */
+            --bg-primary:     #f8fafc;
+            --bg-secondary:   #ffffff;
+            --bg-tertiary:    #f1f5f9;
+            --text-primary:   #0f172a;
+            --text-secondary: #475569;
+            --text-muted:     #94a3b8;
+            --primary:        #1f4e79;
+            --primary-light:  #e0f2fe;
+            --secondary:      #2e75b6;
+            --accent:         #38bdf8;
+            --border:         #e2e8f0;
+            --border-hover:   #bfdbfe;
+            --card-shadow:    0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --card-shadow-hover: 0 10px 25px -5px rgb(31 78 121 / 0.15), 0 4px 10px -6px rgb(31 78 121 / 0.1);
+            --header-bg:      rgba(248,250,252,0.92);
+            --callout-bg:     #f0f9ff;
+            --callout-border: #2e75b6;
+            --mono:           'Space Mono', ui-monospace, monospace;
+        }
+
+        [data-theme="dark"] {
+            /* ═══ Dark — deep navy with sky accents ═══ */
+            --bg-primary:     #090d16;
+            --bg-secondary:   #111827;
+            --bg-tertiary:    #1e2a3a;
+            --text-primary:   #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted:     #64748b;
+            --primary:        #38bdf8;
+            --primary-light:  #0c2340;
+            --secondary:      #60a5fa;
+            --accent:         #7dd3fc;
+            --border:         #1e293b;
+            --border-hover:   #334155;
+            --card-shadow:    0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+            --card-shadow-hover: 0 10px 25px -5px rgb(56 189 248 / 0.2), 0 4px 10px -6px rgb(0 0 0 / 0.3);
+            --header-bg:      rgba(9,13,22,0.94);
+            --callout-bg:     #0c1929;
+            --callout-border: #38bdf8;
+            --mono:           'Space Mono', ui-monospace, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5em;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.3em;
+            margin-top: 1.5em;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        h1 svg {
+            width: 32px;
+            height: 32px;
+            color: var(--secondary);
+            flex-shrink: 0;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-top: 1.2em;
+            color: var(--secondary);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin-top: 1em;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 1em;
+            color: var(--text-secondary);
+        }
+
+        ul, ol {
+            margin-bottom: 1em;
+            padding-left: 1.5em;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        code {
+            font-family: 'Space Mono', ui-monospace, monospace;
+            background: var(--bg-tertiary);
+            padding: 0.2em 0.5em;
+            border-radius: 5px;
+            font-size: 0.875em;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 1em;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-primary);
+        }
+
+        /* Header / Footer Document Frames */
+        .doc-header-frame {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 40px;
+            font-size: 0.8rem;
+            font-family: 'Space Mono', ui-monospace, monospace;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            background: var(--header-bg);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .doc-footer-frame {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 15px 40px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5rem;
+        }
+
+        /* Layout Grid */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 10px;
+        }
+
+        .logo-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            line-height: 1.3;
+        }
+
+        .nav-item svg.nav-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .nav-item a:hover, .nav-item.active a {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+            border-left: 2px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .nav-item.active svg.nav-icon, .nav-item a:hover svg.nav-icon {
+            color: var(--primary);
+        }
+
+        /* Main Content Panel */
+        .main-content {
+            padding: 3rem 4rem;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Header Options */
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 20px;
+        }
+
+        .theme-toggle-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        /* Cover Section */
+        .doc-cover {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 60%, #dbeafe 100%);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            border-top: 4px solid var(--primary);
+            margin-bottom: 4rem;
+            box-shadow: 0 4px 24px -6px rgb(31 78 121 / 0.12);
+        }
+
+        .doc-title {
+            font-size: 3.5rem;
+            color: var(--primary);
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .doc-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        /* Metadata Grid */
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .meta-card {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .meta-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .meta-value {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        /* Tables styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: linear-gradient(90deg, #1f4e79 0%, #2e75b6 100%);
+            color: #ffffff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.07em;
+            font-family: 'Space Mono', monospace;
+        }
+
+        tr {
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.15s;
+        }
+
+        tr:last-child {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--bg-tertiary);
+        }
+
+        tbody tr:hover {
+            background-color: var(--primary-light);
+        }
+
+        tbody tr:hover td {
+            color: var(--text-primary);
+        }
+
+        /* Callout Boxes */
+        .callout-box {
+            background-color: var(--callout-bg);
+            border-left: 4px solid var(--callout-border);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+            box-shadow: var(--card-shadow);
+        }
+
+        .callout-title {
+            font-weight: 700;
+            color: var(--callout-border);
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .callout-content {
+            font-style: italic;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Diagrams container */
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .diagram-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+
+        .diagram-img:hover {
+            transform: scale(1.02);
+        }
+
+        /* Big, modernized architecture diagram */
+        .diagram-container.arch-diagram {
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-radius: 18px;
+            padding: 1.75rem;
+        }
+
+        @media (min-width: 1240px) {
+            .diagram-container.arch-diagram {
+                margin-left: -4rem;
+                margin-right: -4rem;
+                width: calc(100% + 8rem);
+                max-width: none;
+            }
+        }
+
+        .mermaid-scroll {
+            width: 100%;
+            overflow: visible;
+        }
+
+        .mermaid-scroll svg {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        .diagram-caption {
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        /* Database Schema - HTML Table Cards */
+        .schema-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 1.5rem 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .schema-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .schema-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+
+        .schema-service {
+            margin: 2.5rem 0 1.5rem;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .schema-service-header {
+            padding: 12px 20px;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: filter 0.15s;
+        }
+
+        .schema-service-header:hover {
+            filter: brightness(1.08);
+        }
+
+        .schema-header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .schema-table-count {
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.2px;
+        }
+
+        .schema-chevron {
+            display: inline-block;
+            font-size: 1rem;
+            transition: transform 0.25s ease;
+        }
+
+        .schema-service.collapsed .schema-chevron {
+            transform: rotate(-90deg);
+        }
+
+        .schema-service.collapsed .schema-service-body {
+            display: none;
+        }
+
+        .schema-controls {
+            display: flex;
+            gap: 10px;
+            margin: 1rem 0;
+        }
+
+        .schema-control-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .schema-control-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .schema-service-body {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 16px;
+        }
+
+        .schema-table-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .schema-table-card.junction {
+            border: 1px solid #f59e0b;
+        }
+
+        .schema-table-name {
+            padding: 9px 14px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .schema-table-card.junction .schema-table-name {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        [data-theme="dark"] .schema-table-card.junction .schema-table-name {
+            background: #451a03;
+            color: #fbbf24;
+        }
+
+        .junction-tag {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            opacity: 0.8;
+        }
+
+        .schema-fields {
+            list-style: none;
+            margin: 0;
+            padding: 6px 0;
+        }
+
+        .schema-fields li {
+            margin: 0;
+            padding: 4px 14px;
+            font-size: 0.82rem;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .schema-fields li.pk {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .schema-fields li.fk {
+            color: var(--secondary);
+            font-style: italic;
+        }
+
+        .schema-fields li .field-tag {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Feature Spotlight Cards */
+        .spotlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 2rem 0;
+        }
+
+        .spotlight-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s;
+        }
+
+        .spotlight-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .spotlight-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .spotlight-badge {
+            background: linear-gradient(90deg, #1f4e79, #2e75b6);
+            color: #ffffff;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* Floating Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--primary);
+            color: #ffffff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgb(31 78 121 / 0.35);
+        }
+
+        /* ═══ Hamburger / Mobile sidebar toggle ═══ */
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 300;
+        }
+
+        .mobile-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--primary);
+        }
+
+        .mobile-logo img {
+            height: 28px;
+            width: auto;
+        }
+
+        .hamburger {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 9px;
+            cursor: pointer;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 18px;
+            height: 2px;
+            background: currentColor;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        /* Overlay backdrop */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 400;
+            backdrop-filter: blur(2px);
+        }
+
+        .sidebar-overlay.active { display: block; }
+
+        /* ═══ Tablet (≤992px) ═══ */
+        @media (max-width: 992px) {
+            .mobile-header { display: flex; }
+
+            .doc-header-frame { display: none; }
+
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            /* Sidebar becomes a slide-in drawer */
+            .sidebar {
+                position: fixed;
+                left: -300px;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                z-index: 500;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: none;
+            }
+
+            .sidebar.open {
+                left: 0;
+                box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+            }
+
+            .main-content {
+                padding: 2rem 1.5rem;
+            }
+
+            .doc-title { font-size: 2.4rem; }
+            .doc-subtitle { font-size: 1.1rem; }
+
+            /* Tables scroll horizontally */
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Schema cards stack */
+            .schema-service-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ═══ Phone (≤640px) ═══ */
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 1.25rem 1rem;
+            }
+
+            .doc-cover {
+                padding: 2.5rem 1.25rem;
+            }
+
+            .doc-title { font-size: 1.75rem; }
+            .doc-subtitle { font-size: 0.95rem; }
+
+            .meta-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1.15rem; }
+
+            th, td {
+                padding: 10px 12px;
+                font-size: 0.82rem;
+            }
+
+            .callout-box {
+                padding: 1rem;
+            }
+
+            .step-flow {
+                padding: 20px 10px 20px 2.5rem;
+            }
+
+            .pipeline-flow {
+                gap: 0;
+            }
+
+            /* Schema cards single column on phone */
+            .schema-service-grid { grid-template-columns: 1fr; }
+
+            .schema-section { padding: 1rem; }
+
+            .doc-footer-frame {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+
+        /* Workflow Timeline (Horizontal "o---o---o" Flow on Desktop, Vertical on Mobile) */
+        /* ── Stepped Workflow Timeline ── */
+        .step-flow {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            margin: 2.5rem 0 3rem;
+            overflow-x: auto;
+            padding: 25px;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 130px;
+            position: relative;
+        }
+
+        /* connector line between nodes */
+        .step-node:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 22px;
+            left: calc(50% + 22px);
+            right: calc(-50% + 22px);
+            height: 2px;
+            background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
+            opacity: 0.45;
+        }
+
+        .step-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            position: relative;
+            z-index: 2;
+            overflow: visible;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 5px var(--bg-primary);
+            margin-bottom: 10px;
+        }
+
+        .step-icon-wrap svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -9px;
+            right: -9px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--bg-primary);
+            line-height: 1;
+            z-index: 10;
+            box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+        }
+
+        .step-node:hover .step-icon-wrap {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 5px var(--bg-primary), 0 4px 14px rgb(31 78 121 / 0.3);
+            transform: translateY(-2px);
+        }
+
+        .step-body {
+            text-align: center;
+            padding: 0 6px;
+        }
+
+        .step-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 0.04em;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .step-desc {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        /* ── Validation Pipeline (11.2) ── */
+        .pipeline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .pipeline-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.1rem 1.2rem;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.25s, transform 0.25s;
+            box-shadow: var(--card-shadow);
+        }
+
+        .pipeline-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .pipeline-card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .pipeline-card-num {
+            font-size: 0.62rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .pipeline-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .pipeline-card-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .pipeline-card-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .pipeline-card-desc {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        /* ── Pipeline (11.2) — horizontal arrow-connected stages ── */
+        .pipeline-flow {
+            display: flex;
+            align-items: stretch;
+            margin: 2rem 0 2.5rem;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            gap: 0;
+        }
+
+        .pipe-stage {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pipe-card {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--secondary);
+            border-radius: 10px;
+            padding: 1.1rem 1rem 1rem;
+            position: relative;
+            transition: box-shadow 0.2s, transform 0.2s, border-top-color 0.2s;
+            box-shadow: var(--card-shadow);
+            min-width: 140px;
+        }
+
+        .pipe-card:hover {
+            border-top-color: var(--primary);
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-3px);
+        }
+
+        .pipe-stage-num {
+            font-size: 0.6rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            color: var(--text-muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .pipe-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 9px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .pipe-card:hover .pipe-icon {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .pipe-icon svg { width: 15px; height: 15px; }
+
+        .pipe-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .pipe-desc {
+            font-size: 0.73rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        /* chevron arrow between stages */
+        .pipe-arrow {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            color: var(--secondary);
+            opacity: 0.6;
+            padding: 0 2px;
+        }
+
+        .pipe-arrow svg { width: 16px; height: 16px; }
+
+        @media (max-width: 992px) {
+            .step-flow {
+                flex-direction: column;
+                gap: 0;
+                padding-left: 2.5rem;
+                padding-bottom: 0;
+                position: relative;
+            }
+
+            .step-flow::before {
+                content: '';
+                position: absolute;
+                left: 21px;
+                top: 22px;
+                bottom: 22px;
+                width: 2px;
+                background: linear-gradient(180deg, var(--secondary), var(--accent));
+                opacity: 0.45;
+            }
+
+            .step-node {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 14px;
+                min-width: unset;
+                padding-bottom: 28px;
+                flex: unset;
+                width: 100%;
+            }
+
+            .step-node::after { display: none; }
+            .step-icon-wrap { margin-bottom: 0; flex-shrink: 0; }
+            .step-body { text-align: left; }
+
+            .pipeline-flow {
+                flex-direction: column;
+                gap: 0;
+            }
+            .pipe-stage {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .pipe-arrow {
+                transform: rotate(90deg);
+                width: 100%;
+                height: 22px;
+                margin: 0;
+            }
+        }
+
+        /* Document Footer Block */
+        footer.doc-footer-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 2px solid var(--text-primary);
+            padding: 30px 0 10px 0;
+            margin-top: 5rem;
+            color: var(--text-primary);
+        }
+
+        footer.doc-footer-block .fl {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        footer.doc-footer-block .fl strong {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        footer.doc-footer-block .bn {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        footer.doc-footer-block .bn small {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        footer.doc-footer-block .stamp {
+            font-family: var(--mono, monospace);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        /* Document Header like Layout Blueprint */
+        header.doc-header-brand {
+            border-bottom: 2px solid var(--text-primary);
+            padding: 20px 0 26px;
+            margin-bottom: 30px;
+        }
+
+        .brandrow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #1f4e79, #2e75b6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgb(31 78 121 / 0.35);
+        }
+
+        .mark span {
+            color: #fff;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 22px;
+            line-height: 1;
+            margin-top: -2px;
+        }
+
+        .brandrow .bn {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: .01em;
+            color: var(--text-primary);
+        }
+
+        .brandrow .bn small {
+            display: block;
+            font-family: var(--mono, monospace);
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .brandrow .spacer {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+<!-- MOBILE HEADER (visible on tablet/phone) -->
+<div class="mobile-header">
+    <div class="mobile-logo">
+        <img src="Xoiit_Logo.png" alt="XOIT Logo">
+        <span>Reddy's Pizza</span>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+</div>
+
+<!-- SIDEBAR OVERLAY (mobile backdrop) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- CORE DOCUMENT FRAME (HEADER) -->
+<div class="doc-header-frame">
+    <span>Reddy's Pizza Platform - Technical Architecture &amp; Design Document</span>
+    <span>v1.0 (7 Services &amp; .NET 10)</span>
+</div>
+
+<div class="app-container">
+    <!-- STICKY SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img class="logo-img" src="Xoiit_Logo.png" alt="XOIT Logo" style="max-height: 48px; object-fit: contain;">
+        </div>
+        <div class="sidebar-title">REDDY'S PIZZA</div>
+        <ul class="nav-list">
+            <li class="nav-item active"><a href="#1-executive-summary">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Executive Summary
+            </a></li>
+            <li class="nav-item"><a href="#2-project-overview">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Project Overview
+            </a></li>
+            <li class="nav-item"><a href="#3-architecture-principles">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                Principles & Decisions
+            </a></li>
+            <li class="nav-item"><a href="#4-system-architecture">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4a3 3 0 100 6 3 3 0 000-6zM5 16a3 3 0 100 6 3 3 0 000-6zM19 16a3 3 0 100 6 3 3 0 000-6zM12 10v6M12 13H5M12 13h7"></path></svg>
+                System Diagram
+            </a></li>
+            <li class="nav-item"><a href="#5-additional-features">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                Additional Features
+            </a></li>
+            <li class="nav-item"><a href="#6-microservices-breakdown">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-14v4m0 0v10m0-10L4 7m0 0v10l8 4"></path></svg>
+                Microservices
+            </a></li>
+            <li class="nav-item"><a href="#7-layered-security">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                Security Architecture
+            </a></li>
+            <li class="nav-item"><a href="#8-data-layer">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"></path></svg>
+                Data Layer
+            </a></li>
+            <li class="nav-item"><a href="#9-platform-services">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                Platform Services
+            </a></li>
+            <li class="nav-item"><a href="#10-async-event-processing">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                Service Bus
+            </a></li>
+            <li class="nav-item"><a href="#11-order-flow">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Order Pipelines
+            </a></li>
+            <li class="nav-item"><a href="#12-database-schema">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                DB Schema
+            </a></li>
+            <li class="nav-item"><a href="#13-external-integrations">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                Integrations
+            </a></li>
+            <li class="nav-item"><a href="#14-deployment-architecture">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                Deployment
+            </a></li>
+            <li class="nav-item"><a href="#15-monitoring-observability">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                Observability
+            </a></li>
+            <li class="nav-item"><a href="#16-adrs">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                ADR Records
+            </a></li>
+        </ul>
+    </aside>
+
+    <!-- MAIN PANEL -->
+    <main class="main-content">
+        <!-- TOP OPTIONS BAR -->
+        <!-- <div class="top-bar">
+            <button class="theme-toggle-btn" onclick="toggleTheme()">
+                <span id="theme-btn-icon">🌙</span> <span id="theme-btn-text">Dark Mode</span>
+            </button>
+        </div> -->
+
+        <!-- COVER PAGE -->
+        <header class="doc-cover">
+            <div class="doc-title">Reddy's Pizza Platform</div>
+                      <div class="doc-subtitle">Technical Architecture & Design Document</div>
+            <p>Customer Ordering Application & Operations Admin Platform</p>
+            
+            <div class="meta-grid">
+                <div class="meta-card">
+                    <div class="meta-label">Client</div>
+                    <div class="meta-value">ARYVS IT SOLUTION</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Vendor</div>
+                    <div class="meta-value">XOIT Transformation Pvt Ltd</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Version</div>
+                    <div class="meta-value">v1.0</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Prepared By</div>
+                    <div class="meta-value">XOIT Transformation Pvt Ltd</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 1. EXECUTIVE SUMMARY -->
+        <section id="1-executive-summary">
+            <h1>1. Executive Summary</h1>
+            <p>The Reddy's Pizza Platform is a cloud-native, microservices-based, and highly scalable ordering and management ecosystem built on Microsoft Azure. Designed to meet the demands of a high-throughput, low-latency Quick-Service Restaurant (QSR) environment, the platform caters to three primary stakeholder groups:</p>
+            <ul>
+                <li><strong>End Customers:</strong> Initiating orders via a cross-platform React Native mobile application. Supports rapid menu browsing, favorites management, and one-click reordering.</li>
+                <li><strong>Operations & Admin Staff:</strong> Managing menus, deals, loyalty programs, and global business parameters through an administrative web dashboard.</li>
+                <li><strong>inHouse Staff:</strong> Handling telephonic orders, walk-in customers, and store-specific workflows Shift management (Punch in / Punch out) using a specialized, lightning-fast web terminal.</li>
+            </ul>
+            <p>To optimize the balance between strict microservices decoupling and operational simplicity, the architecture is designed from scratch with <strong>seven core microservices</strong> planned. These services execute containerized workloads inside <strong>Azure Kubernetes Service (AKS)</strong>, leveraging <strong>Azure Service Bus</strong> for resilient, asynchronous, event-driven communication. This architectural pattern guarantees exceptional availability, insulates customer-facing ordering pipelines from downstream system delays, and provides high tolerance against external service outages.</p>
+        </section>
+
+        <!-- 2. PROJECT OVERVIEW -->
+        <section id="2-project-overview">
+            <h1>2. Project Overview</h1>
+            <h2>2.1 Project Metadata</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Project Name</strong></td>
+                        <td>Reddy's Pizza - Customer App & Admin Platform</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Client</strong></td>
+                        <td>ARYVS IT SOLUTION</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vendor</strong></td>
+                        <td>XOIT Transformation Pvt Ltd</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Duration</strong></td>
+                        <td>10 months</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cloud Platform</strong></td>
+                        <td>Microsoft Azure</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Methodology</strong></td>
+                        <td>Agile / Scrum</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>2.2 Technology Stack</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Technology</th>
+                        <th>Architectural Role & Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Mobile Application</strong></td>
+                        <td>React Native (iOS + Android)</td>
+                        <td>Cross-platform native customer app leveraging TypeScript (TS)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Web Frontend</strong></td>
+                        <td>React</td>
+                        <td>Admin Web & inHouse Point of Sale (POS) Web built with static builds</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Backend Services</strong></td>
+                        <td>.NET 10, C#, Entity Framework Core (EF Core)</td>
+                        <td>High-performance microservices, Representational State Transfer (REST) APIs, and background workers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database</strong></td>
+                        <td>Azure SQL Database</td>
+                        <td>Independent databases (one per microservice) on a single server, physical data isolation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cache</strong></td>
+                        <td>Azure Cache for Redis</td>
+                        <td>Low-latency session management, cart Management, rate-limiting, and locks</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Messaging</strong></td>
+                        <td>Azure Service Bus</td>
+                        <td>Asynchronous event bus using Topics & Subscriptions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>File Storage</strong></td>
+                        <td>Azure Blob Storage</td>
+                        <td>Secure storage for assets (images, receipts, tax documents)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Compute</strong></td>
+                        <td>Azure Kubernetes Service (AKS)</td>
+                        <td>Orchestrated Docker containers, private node pools, scaling with Kubernetes Event-Driven Autoscaling (KEDA)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>API Gateway</strong></td>
+                        <td>Azure API Management (APIM) + Application Gateway</td>
+                        <td>Centralized ingress routing, Transport Layer Security (TLS) termination, rate limiting, and JSON Web Token (JWT) auth</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Edge / WAF</strong></td>
+                        <td>Azure Front Door with Web Application Firewall (WAF)</td>
+                        <td>Global routing, edge caching, Content Delivery Network (CDN) capabilities, and Distributed Denial of Service (DDoS) protection</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Secrets</strong></td>
+                        <td>Azure Key Vault</td>
+                        <td>Hardware security module storing all passwords, keys, and certificates</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Identity</strong></td>
+                        <td>Microsoft Entra ID + Custom Identity Service</td>
+                        <td>Optional specific inHouse Microsoft Organization Account Single Sign-On (SSO) integration for employees; custom OTP/OAuth for customers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monitoring</strong></td>
+                        <td>Application Insights + Log Analytics</td>
+                        <td>Unified tracing, metrics collection, and Kusto Query Language (KQL) correlation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payments</strong></td>
+                        <td>Stripe API + Cash on Delivery</td>
+                        <td>Secure online transaction processing and localized CoD options</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Notifications</strong></td>
+                        <td>Bulkgate + Firebase Cloud Messaging (FCM)</td>
+                        <td>Multi-channel communications (Short Message Service (SMS), WhatsApp, Push Notifications)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Maps</strong></td>
+                        <td>Google Maps API</td>
+                        <td>Geocoding, store mapping, and distance/delivery calculations</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 3. PRINCIPLES & KEY DECISIONS -->
+        <section id="3-architecture-principles">
+            <h1>3. Architecture Principles & Key Decisions</h1>
+            <h2>3.1 Guiding Principles</h2>
+            <ul>
+                <li><strong>Customer experience first:</strong> Optimized response times for ordering, caching catalog metadata, and rendering customized user interfaces instantly.</li>
+                <li><strong>Defense in depth:</strong> Security enforcement at edge (WAF), API gateway (JWT, TLS), and internal network (Virtual Network (VNet) private endpoints).</li>
+                <li><strong>Passwordless authentication:</strong> Managed Identity for all service-to-service communication. Azure SQL and Blob Storage deny credentials via Service account & Principle.</li>
+                <li><strong>Async by default:</strong> Service Bus topics decouple downstream processing (POS adapter, PDF invoices, Bulkgate messages) from client calls.</li>
+                <li><strong>Strict Service Database Ownership:</strong> Independent databases for each service, hosted on a single server, physically enforcing data isolation and preventing cross-service data coupling.</li>
+                <li><strong>Observable everything:</strong> Log Analytics workspace acts as a central telemetry store, enabling trace auditing through correlation IDs.</li>
+            </ul>
+
+            <h2>3.2 Key Architectural Decisions</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Decision Area</th>
+                        <th>Choice</th>
+                        <th>Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Service Count</strong></td>
+                        <td>7 Services (Designed from Scratch)</td>
+                        <td>Balances microservices separation and operational simplicity. Fits team capacity.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database Strategy</strong></td>
+                        <td>Database-per-Service on a Single Server</td>
+                        <td>Enforces strict service boundaries and independent schemas, avoiding cross-database joins.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Communication</strong></td>
+                        <td>Async via Service Bus</td>
+                        <td>Isolates slow third-party services (SMS, PDF, POS, EMAIL) from customer API paths.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Auth Strategy</strong></td>
+                        <td>Centralized JWT validation at APIM</td>
+                        <td>Decentralized services skip auth overhead. APIM validates and appends headers.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Frontend Hosting</strong></td>
+                        <td>Azure Static Web Apps</td>
+                        <td>Zero-server hosting, built-in SSL and CDN, and automatic branch previews.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Secrets Strategy</strong></td>
+                        <td>Key Vault + Workload Identity</td>
+                        <td>Allows keys rotation without code changes. Eliminates secrets from configurations.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AKS Orchestration</strong></td>
+                        <td>AKS with NGINX Ingress</td>
+                        <td>Provides high-density pod hosting, rolling upgrades, and auto-scaling.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 4. SYSTEM ARCHITECTURE DIAGRAM -->
+        <section id="4-system-architecture">
+            <h1>4. System Architecture Diagram</h1>
+            <p>The diagram below shows the complete 7-layer architecture from clients down through edge security, API gateway, microservices, async messaging, data layer, platform services, and external integrations.</p>
+            
+            <div class="diagram-container arch-diagram">
+                <div class="mermaid-scroll">
+                <pre class="mermaid" style="background: transparent; padding: 1rem 0.5rem; border-radius: 8px; border: none; text-align: center;">
+graph TD
+    %% Nodes & Connections
+    Client(["📱 Mobile App / Web Apps"]) --> AFD["🛡️ Layer 1 · Global Edge<br/>Azure Front Door + WAF"]
+    AFD --> AGW["🌐 Layer 2 · Regional VNet Ingress<br/>Application Gateway + WAF"]
+    AGW --> APIM{{"🔑 Azure API Management Gateway"}}
+    APIM --> Ingress["⚙️ Layer 3 · Cluster Edge<br/>NGINX Ingress Controller"]
+    
+    subgraph L4 ["⬡  LAYER 4 · BOUNDED CONTEXT MICROSERVICES — AKS NODE POOL"]
+        Auth(["🔐 Auth<br/>Service"])
+        Store(["🏬 Store<br/>Service"])
+        Catalog(["🍕 Catalog<br/>Service"])
+        Order(["🧾 Order<br/>Service"])
+        Payment(["💳 Payment<br/>Service"])
+        Notify(["🔔 Notification<br/>Service"])
+        Report(["📊 Reporting<br/>Service"])
+    end
+    
+    Ingress --> Auth
+    Ingress --> Store
+    Ingress --> Catalog
+    Ingress --> Order
+    Ingress --> Payment
+    Ingress --> Notify
+    Ingress --> Report
+    
+    subgraph L5 ["📨  LAYER 5 · ASYNCHRONOUS EVENT BUS"]
+        ASB[("Azure Service Bus<br/>Topics & Subscriptions")]
+    end
+    
+    Auth -.-> ASB
+    Store -.-> ASB
+    Catalog -.-> ASB
+    Order -.-> ASB
+    Payment -.-> ASB
+    Notify -.-> ASB
+    ASB -.-> Notify
+    ASB -.-> Report
+    
+    subgraph L6 ["🗄️  LAYER 6 · RELATIONAL, CACHE & OBJECT STORAGE"]
+        SQL[("🛢️ Azure SQL Database<br/>7 DBs")]
+        Redis[("⚡ Azure Cache<br/>for Redis")]
+        Blob[("📦 Azure Blob<br/>Storage")]
+    end
+    
+    Auth --- SQL
+    Store --- SQL
+    Catalog --- SQL
+    Order --- SQL
+    Payment --- SQL
+    Notify --- SQL
+    Report --- SQL
+    
+    Order --- Redis
+    Catalog --- Redis
+    
+    Report --- Blob
+    Store --- Blob
+    
+    subgraph L7 ["🌍  LAYER 7 · EXTERNAL GATEWAYS"]
+        Stripe(["💰 Stripe API"])
+        Bulk(["✉️ Bulkgate<br/>SMS/WhatsApp"])
+        POS(["🖨️ Restaurant<br/>POS System"])
+    end
+    
+    Payment --> Stripe
+    Notify --> Bulk
+    Store --> POS
+
+    %% Styling
+    style L4 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,stroke-dasharray: 4 4,rx:16,ry:16
+    style L5 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,stroke-dasharray: 4 4,rx:16,ry:16
+    style L6 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,stroke-dasharray: 4 4,rx:16,ry:16
+    style L7 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,stroke-dasharray: 4 4,rx:16,ry:16
+    
+    classDef default fill:#ffffff,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a,font-weight:600;
+    classDef edge fill:#eaf2fb,stroke:#1f4e79,stroke-width:2px,color:#15355c,font-weight:700;
+    classDef gateway fill:#e3edf9,stroke:#2e75b6,stroke-width:2px,color:#15355c,font-weight:700;
+    classDef auth fill:#e9edf8,stroke:#3a539b,stroke-width:2px,color:#222f5e,font-weight:700;
+    classDef store fill:#e3f3f3,stroke:#2c8c99,stroke-width:2px,color:#16454c,font-weight:700;
+    classDef catalog fill:#f6efe2,stroke:#a8763e,stroke-width:2px,color:#4d3a1d,font-weight:700;
+    classDef order fill:#f7e9e6,stroke:#a8493f,stroke-width:2.5px,color:#5a241e,font-weight:700;
+    classDef payment fill:#e4f1e9,stroke:#2f8f5b,stroke-width:2px,color:#17492c,font-weight:700;
+    classDef notify fill:#ece8f6,stroke:#6e58a8,stroke-width:2px,color:#392c61,font-weight:700;
+    classDef report fill:#e7eaee,stroke:#51677d,stroke-width:2px,color:#28333e,font-weight:700;
+    classDef db fill:#ffffff,stroke:#64748b,stroke-width:2px,color:#0f172a,font-weight:700;
+    classDef ext fill:#ffffff,stroke:#6b5b4f,stroke-width:2px,color:#0f172a,font-weight:700;
+    
+    class Client,AFD,AGW,Ingress edge;
+    class APIM gateway;
+    class Auth auth;
+    class Store store;
+    class Catalog catalog;
+    class Order order;
+    class Payment payment;
+    class Notify notify;
+    class Report report;
+    class SQL,Redis,Blob db;
+    class Stripe,Bulk,POS ext;
+                </pre>
+                </div>
+                <div class="diagram-caption">Figure 1: Complete System Architecture - Reddy's Pizza Platform on Azure</div>
+            </div>
+
+            <h2>4.1 Description of the 7-Layer Infrastructure</h2>
+            <ul>
+                <li><strong>Layer 1: Global Edge:</strong> Azure Front Door terminates SSL globally and applies WAF policies to defend against SQL injection (SQLi), Cross-Site Scripting (XSS), and DDoS attacks.</li>
+                <li><strong>Layer 2: Regional VNet Ingress:</strong> Application Gateway acts as regional load balancer routing to internal API Management (APIM), which validates JWT tokens and rate-limits users.</li>
+                <li><strong>Layer 3: Kubernetes Cluster Edge:</strong> NGINX Ingress controller routes external gateway requests to Kubernetes services inside the AKS private virtual network.</li>
+                <li><strong>Layer 4: Bounded Context Microservices:</strong> Containerized .NET 10 API microservices representing Bounded Contexts (Auth, Store, Catalog, Order, Notification, Reporting, Payment).</li>
+                <li><strong>Layer 5: Asynchronous Event Bus:</strong> Azure Service Bus topic-based publish-subscribe network that propagates state changes (e.g., OrderPlaced, PaymentCompleted) to downstream workers.</li>
+                <li><strong>Layer 6: Relational & Cache Data Stores:</strong> Azure SQL Database Server (independent databases per microservice), Azure Cache for Redis (low-latency session/cart store), and Azure Blob Storage (media and invoice storage).</li>
+                <li><strong>Layer 7: External Gateways:</strong> Payment processors (Stripe), messaging systems (Bulkgate, WhatsApp, FCM), and localized POS terminal systems.</li>
+            </ul>
+        </section>
+
+        <!-- 5. ADDITIONAL FEATURES & ENHANCEMENTS (CONSOLIDATED & RE-ORDERED SECTION) -->
+        <section id="5-additional-features">
+            <h1>5. Additional Features & Enhancements</h1>
+            <p>This consolidated section outlines all the business enhancements, dynamic system capabilities, and future-ready modules integrated into the platform to enrich the user experience and streamline operations:</p>
+            
+            <div class="spotlight-grid">
+                <!-- Favourites -->
+                <div class="spotlight-card">
+                    <div class="spotlight-header">
+                        <span class="spotlight-badge">Feature</span>
+                        <h3>Favourites System</h3>
+                    </div>
+                    <p>Empowers customers to save customized menu configurations (e.g. crust size, toppings, modifications) with user-defined aliases (e.g. 'My Cheesy Treat'). Pulls from Redis cache key <code>favorites:user:{userId}</code> to display config instantly on the UI.</p>
+                </div>
+                <!-- One-Click Reorder -->
+                <div class="spotlight-card">
+                    <div class="spotlight-header">
+                        <span class="spotlight-badge">Feature</span>
+                        <h3>One-Click Reordering Pipeline</h3>
+                    </div>
+                    <p>Implements dynamic cloning of past orders via `POST /api/orders/reorder/{orderId}`. Validates active catalog listings, evaluates pricing modifications, checks stock in real-time, and generates a Stripe checkout contract.</p>
+                </div>
+                <!-- Holiday Calendar -->
+                <div class="spotlight-card">
+                    <div class="spotlight-header">
+                        <span class="spotlight-badge">Feature</span>
+                        <h3>Holiday Calendar Management</h3>
+                    </div>
+                    <p>Enables store managers to configure recurring holidays and special closures. The Order Service checks the calendar in real-time, displaying a warning or preventing order placements if a store is closed during checkout.</p>
+                </div>
+                <!-- RBAC Enhancements -->
+                <div class="spotlight-card">
+                    <div class="spotlight-header">
+                        <span class="spotlight-badge">Enhancement</span>
+                        <h3>Role Based Access Control</h3>
+                    </div>
+                    <p>Extends workforce SSO with role boundaries (e.g. <code>store_staff</code> can only pull display queues and enter orders; <code>store_manager</code> updates holiday parameters; <code>super_admin</code> accesses global overrides).</p>
+                </div>
+                <!-- Notification & Alert -->
+                <div class="spotlight-card">
+                    <div class="spotlight-header">
+                        <span class="spotlight-badge">Enhancement</span>
+                        <h3>Notification & Alert Management</h3>
+                    </div>
+                    <p>Orchestrates template distribution (SMS/WhatsApp via Bulkgate, push via FCM). Enforces circuit breaker failovers to route WhatsApp messages through standard SMS if webhooks fail.</p>
+                </div>
+                <!-- Audit Trail -->
+                <div class="spotlight-card">
+                    <div class="spotlight-header">
+                        <span class="spotlight-badge">Compliance</span>
+                        <h3>Log Monitoring</h3>
+                    </div>
+                    <p>Commits all critical administrator modifications (catalog price shifts, manual inventory changes, role updates) to a read-only audit log database table for tracking and compliance.</p>
+                </div>
+                <!-- Advanced Reporting -->
+                <div class="spotlight-card">
+                    <div class="spotlight-header">
+                        <span class="spotlight-badge">Analytics</span>
+                        <h3>Advanced Reporting & Analytics</h3>
+                    </div>
+                    <p>Offloads queries from the primary transactional database by utilizing read-replicas, generating reports on store workloads, average order delivery times, and product performance metrics.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 6. MICROSERVICES BREAKDOWN -->
+        <section id="6-microservices-breakdown">
+            <h1>6. Microservices Breakdown (7 Services)</h1>
+            <p>The platform consists of 7 core microservices, each owning a specific domain and bounded context. All services run as containerized .NET 10 applications on AKS with 2 Pod replicas each (auto-scalable up to 10 Pods under load).</p>
+            
+            <h2>6.1 Auth Service</h2>
+            <p><strong>Owns:</strong> User authentication, roles, RBAC, addresses, profile management.</p>
+            <p><strong>Responsibilities:</strong> JWT token generation and refresh; user registration and login (OTP, Google OAuth, email/password); role-based access control across customer, admin, store_manager, and store_staff roles; delivery address management with geocoding.</p>
+            <p><strong>Tables owned:</strong> Users, Roles, Addresses.</p>
+            <p><strong>Key technologies:</strong> JWT (RS256 signing), custom identity for customers, optional Entra ID integration for workforce SSO.</p>
+
+            <h2>6.2 Store Service</h2>
+            <p><strong>Owns:</strong> Store configurations, operating boundaries, employee attendance, and localized operations.</p>
+            <p><strong>Responsibilities:</strong> Store location coordinates; operating hours; settings; localized deals configurations; tracking employee attendance punch records.</p>
+            <p><strong>Tables owned (DbSet mapping):</strong></p>
+            <ul>
+                <li><strong>Businesses</strong>: Global business details.</li>
+                <li><strong>BusinessDocs</strong>: Regulatory documents (e.g. FSSAI, GST certificates).</li>
+                <li><strong>Stores</strong>: Individual branch details.</li>
+                <li><strong>StoreHours</strong>: Branch operational hour ranges.</li>
+                <li><strong>StoreProducts</strong>: Availability logs per store.</li>
+                <li><strong>StoreSettings</strong>: Branch-level features toggles.</li>
+                <li><strong>StoreDeals</strong>: Store-specific campaigns and promotions.</li>
+                <li><strong>EmployeeAttendances</strong>: Staff shift punch-in and punch-out records.</li>
+                <li><strong>StoreOrders & StoreOrderItems</strong>: Fulfillment dockets processed at store POS level.</li>
+            </ul>
+
+            <h2>6.3 Catalog Service</h2>
+            <p><strong>Owns:</strong> The global menu structure, items categorization, customization modifiers, and pricing matrices.</p>
+            <p><strong>Responsibilities:</strong> Creating and updating menu structures; sizing rules; toppings details; and discount offers.</p>
+            <p><strong>Tables owned (DbSet mapping):</strong></p>
+            <ul>
+                <li><strong>Departments & SubDepartments</strong>: Menu sections hierarchy.</li>
+                <li><strong>Crusts & Toppings</strong>: Custom modifiers options.</li>
+                <li><strong>AddonCategories & Addons</strong>: Sides and customizations.</li>
+                <li><strong>MenuItems, MenuItemCrusts, MenuItemSizes, MenuItemToppings, MenuItemAddons</strong>: Specific items and available selections.</li>
+                <li><strong>Sizes</strong>: Standard size labels.</li>
+                <li><strong>Combos & ComboMenuItems</strong>: Multi-item bundles.</li>
+                <li><strong>Offers & StoreOfferOverrides</strong>: Marketing campaign rules and overrides.</li>
+            </ul>
+
+            <h2>6.4 Order Service</h2>
+            <p><strong>Owns:</strong> Carts management, order checkout, order history logs, and store availability caching.</p>
+            <p><strong>Responsibilities:</strong> Shopping cart calculations; order placement validations; order state progressions; customer feedback ingestion.</p>
+            <p><strong>Tables owned (DbSet mapping):</strong></p>
+            <ul>
+                <li><strong>Carts & CartItems</strong>: Transient order builders.</li>
+                <li><strong>Orders & OrderItems</strong>: Relational transaction records.</li>
+                <li><strong>OrderStatusHistories</strong>: Order progression tracking.</li>
+                <li><strong>Feedbacks</strong>: Post-fulfillment user reviews.</li>
+                <li><strong>StoreHours & StoreSettings</strong>: Read-only DB views (synonyms) referencing Store Service databases to validate timing during order placement.</li>
+            </ul>
+
+            <h2>6.5 Payment Service</h2>
+            <p><strong>Owns:</strong> Gateway interactions, transaction logs, and invoicing state.</p>
+            <p><strong>Responsibilities:</strong> Processing online cards via Stripe; validating payment notifications; managing cash-on-delivery state records.</p>
+            <p><strong>Tables owned:</strong> Payments, PaymentTransactions.</p>
+            <p><strong>Key technologies:</strong> Stripe SDK integrations, distributed transactional logs.</p>
+
+            <h2>6.6 Notification Service</h2>
+            <p><strong>Owns:</strong> Outbound communications (SMS, email, push notifications, WhatsApp).</p>
+            <p><strong>Responsibilities:</strong> Listening to event bus; selecting multi-channel templates; dispatching messages via Bulkgate and FCM.</p>
+            <p><strong>Tables owned:</strong> Notifications (sent logs).</p>
+
+            <h2>6.7 Reporting Service</h2>
+            <p><strong>Owns:</strong> Data aggregation, BI, and invoice generation.</p>
+            <p><strong>Responsibilities:</strong> Querying microservice databases via read-replicas; building sales PDFs; delivering BI charts to administrators.</p>
+            <p><strong>Tables accessed:</strong> Reads from all service databases; writes minimal analytics metadata.</p>
+        </section>
+
+        <!-- 7. LAYERED SECURITY -->
+        <section id="7-layered-security">
+            <h1>7. Layered Security Architecture</h1>
+            <p>The platform implements defense-in-depth with three distinct security layers, each providing independent protection against different attack vectors.</p>
+            
+            <h2>7.1 Layer 1: Azure Front Door + WAF (Global Edge)</h2>
+            <p>Azure Front Door acts as the global edge router, routing traffic to the closest healthy Azure gateway. It enforces SSL 1.2/1.3 and applies OWASP Core Rule Set (CRS) policies to block common web attacks at the network perimeter. DDoS protection prevents application-level overload.</p>
+
+            <h2>7.2 Layer 2: APIM + Application Gateway (VNet)</h2>
+            <p>The regional Application Gateway (WAF-enabled) intercepts traffic from Front Door and routes it to the API Management (APIM) gateway, which is virtual network injected. APIM provides centralized JWT Verification, client rate limiting, and private IP network boundaries.</p>
+
+            <h2>7.3 Layer 3: NGINX Ingress (In-Cluster)</h2>
+            <p>NGINX Ingress Controller running inside the AKS cluster routes requests to appropriate microservices. It balances internal load across 2 Pod replicas, performs TCP/HTTP checks, and acts as internal service discovery.</p>
+
+            <h2>7.4 Identity & Secrets</h2>
+            <ul>
+                <li><strong>Workforce identity:</strong> Optional specific inHouse Microsoft Organization Account SSO integration for employee punch/attendance via Microsoft Entra ID.</li>
+                <li><strong>Workload identity:</strong> Each AKS Pod has a Managed Identity (service principal in Entra). Used for Key Vault, SQL, Blob, and ACR access — no passwords or connection strings in pods.</li>
+                <li><strong>Customer identity:</strong> Custom Identity service stores users in SQL, issues JWTs, handles OTP and Google OAuth flows.</li>
+                <li><strong>Secret management:</strong> Azure Key Vault stores all connection strings, API keys, certificates, and signing keys.</li>
+            </ul>
+        </section>
+
+        <!-- 8. DATA LAYER -->
+        <section id="8-data-layer">
+            <h1>8. Data Layer Architecture</h1>
+            <h2>8.1 Azure SQL Database (Primary Store)</h2>
+            <p><strong>Strategy:</strong> A single logical Azure SQL Database Server hosting 7 independent databases (one per microservice) to enforce physical data isolation. This database-per-service strategy prevents tight coupling of data structures, isolates processing resources, and matches bounded contexts.</p>
+            <p><strong>Authentication:</strong> Managed Identity — no username or password. Connection string fetched from Key Vault at startup.</p>
+            <p><strong>Service ownership:</strong> Each service has exclusive access to its database. Cross-database queries are avoided; services communicate via asynchronous events or REST APIs.</p>
+            <p><strong>Indexes:</strong> Critical indexes placed on frequently queried foreign keys, search fields, and composite query filter columns (such as store identifiers and date ranges) to optimize lookup performance.</p>
+
+            <h2>8.2 Azure Cache for Redis</h2>
+            <p><em>Note: Caching TTLs listed below are approximate baseline values. Caches will be dynamically adjusted during implementation as additional requirements arise.</em></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cache Key Pattern</th>
+                        <th>TTL (Approximate)</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>session:{userId}</code></td>
+                        <td>30 min</td>
+                        <td>Active user sessions; deleted to force logout</td>
+                    </tr>
+                    <tr>
+                        <td><code>cart:user:{userId}</code></td>
+                        <td>24 hours</td>
+                        <td>Shopping cart; never touches SQL until checkout</td>
+                    </tr>
+                    <tr>
+                        <td><code>catalog:products:all</code></td>
+                        <td>1 hour</td>
+                        <td>Menu items; invalidated on admin product update</td>
+                    </tr>
+                    <tr>
+                        <td><code>ratelimit:user:{userId}</code></td>
+                        <td>60 seconds</td>
+                        <td>APIM rate limit counters</td>
+                    </tr>
+                    <tr>
+                        <td><code>store:{storeId}:available</code></td>
+                        <td>Real-time</td>
+                        <td>Store availability and operating status</td>
+                    </tr>
+                    <tr>
+                        <td><code>lock:inventory:{productId}</code></td>
+                        <td>5 seconds</td>
+                        <td>Distributed lock to prevent overselling</td>
+                    </tr>
+                    <tr>
+                        <td><code>favorites:user:{userId}</code></td>
+                        <td>4 hours</td>
+                        <td>User favorite configurations to bypass SQL database reads.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>8.3 Azure Blob Storage</h2>
+            <ul>
+                <li><strong>Product images:</strong> <code>product-images/products/{id}/filename.jpg</code> — public, CDN-fronted by Front Door.</li>
+                <li><strong>Business documents:</strong> <code>business-docs/businesses/{id}/</code> for FSSAI licenses, GST certificates, tax documents — private, accessed via 1-hour SAS tokens.</li>
+                <li><strong>Receipts and dockets:</strong> <code>receipts/orders/{id}/receipt.pdf</code> — generated by Reporting Service after order placement.</li>
+            </ul>
+        </section>
+
+        <!-- 9. PLATFORM SERVICES -->
+        <section id="9-platform-services">
+            <h1>9. Platform Services</h1>
+            <ul>
+                <li><strong>Azure Key Vault:</strong> Centralized encryption key and secret manager. Audited logs are fed directly to Log Analytics.</li>
+                <li><strong>Microsoft Entra ID:</strong> Handles workload identity security and optional workforce SSO for inHouse systems.</li>
+                <li><strong>Application Insights:</strong> Monitors telemetry, latency, errors, dependencies (SQL execution, HTTP calls), and user behaviors.</li>
+                <li><strong>Log Analytics:</strong> Consolidates logs from AKS, APIM, SQL, Key Vault, and Front Door for cross-component queries.</li>
+                <li><strong>Container Registry (ACR):</strong> Private container registry with integrated vulnerability scanner blocking vulnerable builds.</li>
+            </ul>
+        </section>
+
+        <!-- 10. SERVICE BUS -->
+        <section id="10-async-event-processing">
+            <h1>10. Async Event Processing (Service Bus)</h1>
+            <h2>10.1 Why Async Messaging?</h2>
+            <p>Without Service Bus, the Order Service would synchronously call Notification, Reporting, and POS — leading to high latency and cascading failure risks. With Service Bus, the order is committed to the database and publishes the event to Service Bus, immediately returning a successful response to the customer while background workers process the event independently.</p>
+
+            <h2>10.2 Topic & Subscription Topology</h2>
+            <p>We utilize the standard Service Bus tier (sb-reddyspizza):</p>
+            <ul>
+                <li><strong>Topic: order-events:</strong> Single topic where the Order service publishes events.</li>
+                <li><strong>Subscription: notification-sub:</strong> Consumed by Notification service to send SMS, WhatsApp, and Firebase push alerts.</li>
+                <li><strong>Subscription: reporting-sub:</strong> Consumed by Reporting service to build invoice PDFs.</li>
+                <li><strong>Subscription: pos-sub:</strong> Consumed by Store POS adapters to print kitchen dockets.</li>
+            </ul>
+
+            <h2>10.3 Reliability Features</h2>
+            <ul>
+                <li><strong>Message Deduplication:</strong> Matches message IDs against order IDs, discarding repeats if client retries.</li>
+                <li><strong>Retry & Backoff:</strong> Retries processing up to 10 times with exponential delay before sending to Dead-Letter Queue (DLQ).</li>
+                <li><strong>Fault Isolation:</strong> If Bulkgate is down, only notifications are delayed; order execution and printing function normally.</li>
+            </ul>
+        </section>
+
+        <!-- 11. ORDER FLOW - END TO END -->
+        <section id="11-order-flow">
+            <h1>11. Order Flow — End-to-End</h1>
+            <p>The diagram below shows the complete order placement flow with swimlanes for Customer, API Gateway, Order Service, Service Bus, and Background Workers.</p>
+            <div class="diagram-container">
+                <img class="diagram-img" src="image2.png" alt="Order Placement Flow Diagram">
+                <div class="diagram-caption">Figure: Order Placement Flow — Async Event Processing with Service Bus</div>
+            </div>
+        </section>
+
+        <!-- 11.1 ORDER PLACEMENT TIMELINE -->
+        <section id="11-1-order-placement-timeline">
+            <h1>11.1 Order Placement Timeline Breakdown</h1>
+            <p>The sequence below shows every hop a customer request makes from tap to confirmation, across the six gateway and service stages.</p>
+            <div class="step-flow">
+
+                <div class="step-node">
+                    <div class="step-icon-wrap">
+                        <span class="step-number">1</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-label">Customer</div>
+                        <div class="step-desc">Clicks &ldquo;Place Order&rdquo; in mobile app</div>
+                    </div>
+                </div>
+
+                <div class="step-node">
+                    <div class="step-icon-wrap">
+                        <span class="step-number">2</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-label">APIM</div>
+                        <div class="step-desc">JWT validated, rate limit checked</div>
+                    </div>
+                </div>
+
+                <div class="step-node">
+                    <div class="step-icon-wrap">
+                        <span class="step-number">3</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-label">Redis</div>
+                        <div class="step-desc">Stock validated against cache</div>
+                    </div>
+                </div>
+
+                <div class="step-node">
+                    <div class="step-icon-wrap">
+                        <span class="step-number">4</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-label">Payment</div>
+                        <div class="step-desc">Payment status &amp; DB validated</div>
+                    </div>
+                </div>
+
+                <div class="step-node">
+                    <div class="step-icon-wrap">
+                        <span class="step-number">5</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-label">Service Bus</div>
+                        <div class="step-desc"><code>OrderPlacedEvent</code> published</div>
+                    </div>
+                </div>
+
+                <div class="step-node">
+                    <div class="step-icon-wrap">
+                        <span class="step-number">6</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-label">Confirmed</div>
+                        <div class="step-desc">Customer sees order confirmation</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 11.2 REORDERING PIPELINE -->
+        <section id="11-2-reordering-pipeline">
+            <h1>11.2 Reordering Flow &amp; Validation Pipeline</h1>
+            <p>The reordering pipeline follows a multi-stage validation sequence before a past order can be replayed into the cart:</p>
+
+            <div class="pipeline-flow">
+
+                <div class="pipe-stage">
+                    <div class="pipe-card">
+                        <div class="pipe-stage-num">Stage 01</div>
+                        <div class="pipe-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="pipe-title">Historical Fetch</div>
+                        <div class="pipe-desc">Order Service retrieves the past order record from SQL DB using the order ID.</div>
+                    </div>
+                </div>
+
+                <div class="pipe-arrow">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </div>
+
+                <div class="pipe-stage">
+                    <div class="pipe-card">
+                        <div class="pipe-stage-num">Stage 02</div>
+                        <div class="pipe-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                        </div>
+                        <div class="pipe-title">Store Audit</div>
+                        <div class="pipe-desc">Checks menu item and topping availability at the customer&rsquo;s target store.</div>
+                    </div>
+                </div>
+
+                <div class="pipe-arrow">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </div>
+
+                <div class="pipe-stage">
+                    <div class="pipe-card">
+                        <div class="pipe-stage-num">Stage 03</div>
+                        <div class="pipe-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="pipe-title">Dynamic Pricing</div>
+                        <div class="pipe-desc">Recalculates live pricing, applicable surcharges, and tax obligations.</div>
+                    </div>
+                </div>
+
+                <div class="pipe-arrow">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </div>
+
+                <div class="pipe-stage">
+                    <div class="pipe-card">
+                        <div class="pipe-stage-num">Stage 04</div>
+                        <div class="pipe-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        </div>
+                        <div class="pipe-title">Cart Build</div>
+                        <div class="pipe-desc">Validated items are populated into the Redis user cart session state.</div>
+                    </div>
+                </div>
+
+                <div class="pipe-arrow">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </div>
+
+                <div class="pipe-stage">
+                    <div class="pipe-card">
+                        <div class="pipe-stage-num">Stage 05</div>
+                        <div class="pipe-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        </div>
+                        <div class="pipe-title">Checkout Handshake</div>
+                        <div class="pipe-desc">Generates the invoice contract and secures the card payment tokenisation.</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 12. DB SCHEMA -->
+        <section id="12-database-schema">
+            <h1>12. Database Schema</h1>
+            <p>The complete ER diagram below shows all 30+ tables grouped by service ownership across the 7 microservices. Junction tables (highlighted in light orange) implement many-to-many relationships. Under the database-per-service architecture, these tables are distributed across 7 microservice databases on a single server, with references established at the logical level. Click any service header below to expand or collapse its tables.</p>
+            
+<div class="schema-legend">
+                <div class="schema-legend-item"><span class="schema-swatch" style="background:#ffffff;"></span> Regular table</div>
+                <div class="schema-legend-item"><span class="schema-swatch" style="background:#fef3c7; border-color:#f59e0b;"></span> Junction table (many-to-many)</div>
+                <div class="schema-legend-item"><span style="color:#dc2626; font-weight:700;">PK</span> = Primary Key</div>
+                <div class="schema-legend-item"><span style="color:var(--secondary); font-style:italic;">FK</span> = Foreign Key</div>
+                <div class="schema-legend-item">Total: 30+ tables across 7 service-owned database boundaries</div>
+            </div>
+
+            <div class="schema-controls">
+                <button class="schema-control-btn" onclick="toggleAllSchemaServices(false)">Expand All</button>
+                <button class="schema-control-btn" onclick="toggleAllSchemaServices(true)">Collapse All</button>
+            </div>
+
+                <div class="schema-service" id="schema-svc-0">
+                    <div class="schema-service-header" style="background:#3a539b;" onclick="toggleSchemaService('schema-svc-0')">
+                        <span>🔐 AUTH SERVICE</span>
+                        <span class="schema-header-right">
+                            <span class="schema-table-count">4 tables</span>
+                            <span class="schema-chevron">▾</span>
+                        </span>
+                    </div>
+                    <div class="schema-service-body">
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Users</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li><span>email</span><span class="field-tag">unique</span></li>
+                            <li><span>phone</span><span class="field-tag">unique</span></li>
+                            <li><span>password_hash</span></li>
+                            <li><span>first_name</span></li>
+                            <li><span>last_name</span></li>
+                            <li class="fk"><span>role_id</span><span class="field-tag">FK</span></li>
+                            <li><span>is_active</span></li>
+                            <li><span>last_login</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Roles</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li><span>name</span></li>
+                            <li><span>description</span></li>
+                            <li><span>(customer, admin,</span></li>
+                            <li><span>store_manager, staff)</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Addresses</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>user_id</span><span class="field-tag">FK</span></li>
+                            <li><span>address_line1/2</span></li>
+                            <li><span>city, state</span></li>
+                            <li><span>postal_code</span></li>
+                            <li><span>latitude, longitude</span></li>
+                            <li><span>is_default</span></li>
+                            <li><span>country</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">PunchRecords</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>user_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>store_id</span><span class="field-tag">FK</span></li>
+                            <li><span>punch_in</span></li>
+                            <li><span>punch_out</span></li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                <div class="schema-service" id="schema-svc-1">
+                    <div class="schema-service-header" style="background:#2c8c99;" onclick="toggleSchemaService('schema-svc-1')">
+                        <span>🏬 STORE SERVICE</span>
+                        <span class="schema-header-right">
+                            <span class="schema-table-count">3 tables</span>
+                            <span class="schema-chevron">▾</span>
+                        </span>
+                    </div>
+                    <div class="schema-service-body">
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Businesses</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li><span>name</span></li>
+                            <li><span>description</span></li>
+                            <li class="fk"><span>owner_user_id</span><span class="field-tag">FK</span></li>
+                            <li><span>is_active</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Stores</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>business_id</span><span class="field-tag">FK</span></li>
+                            <li><span>name</span></li>
+                            <li><span>address</span></li>
+                            <li><span>lat, long</span></li>
+                            <li><span>phone</span></li>
+                            <li><span>opening_time</span></li>
+                            <li><span>closing_time</span></li>
+                            <li><span>is_active</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">HolidayCalendar</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>store_id</span><span class="field-tag">FK</span></li>
+                            <li><span>holiday_date</span></li>
+                            <li><span>reason</span></li>
+                            <li><span>is_closed</span></li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                <div class="schema-service" id="schema-svc-2">
+                    <div class="schema-service-header" style="background:#a8763e;" onclick="toggleSchemaService('schema-svc-2')">
+                        <span>🍕 CATALOG SERVICE</span>
+                        <span class="schema-header-right">
+                            <span class="schema-table-count">9 tables</span>
+                            <span class="schema-chevron">▾</span>
+                        </span>
+                    </div>
+                    <div class="schema-service-body">
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Categories</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li><span>name</span></li>
+                            <li><span>description</span></li>
+                            <li><span>display_order</span></li>
+                            <li><span>is_active</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Products</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>category_id</span><span class="field-tag">FK</span></li>
+                            <li><span>name</span></li>
+                            <li><span>description</span></li>
+                            <li><span>base_price</span></li>
+                            <li><span>image_url</span></li>
+                            <li><span>is_vegetarian</span></li>
+                            <li><span>is_vegan</span></li>
+                            <li><span>is_spicy</span></li>
+                            <li><span>is_active</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card junction">
+                        <div class="schema-table-name">StoreProducts<span class="junction-tag">Junction</span></div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>store_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li><span>quantity_available</span></li>
+                            <li><span>reorder_level</span></li>
+                            <li><span>is_available</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">ProductSizes</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li><span>size_name</span></li>
+                            <li><span>price_multiplier</span></li>
+                            <li><span>is_available</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Crusts</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li><span>crust_name</span></li>
+                            <li><span>price_adjustment</span></li>
+                            <li><span>is_available</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Toppings</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li><span>topping_name</span></li>
+                            <li><span>price</span></li>
+                            <li><span>is_available</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">AddOns</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li><span>addon_name</span></li>
+                            <li><span>price</span></li>
+                            <li><span>is_available</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Deals</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li><span>name</span></li>
+                            <li><span>discount_type</span></li>
+                            <li><span>discount_value</span></li>
+                            <li><span>start/end_date</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card junction">
+                        <div class="schema-table-name">DealProducts<span class="junction-tag">Junction</span></div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>deal_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li><span>quantity_required</span></li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                <div class="schema-service" id="schema-svc-3">
+                    <div class="schema-service-header" style="background:#a8493f;" onclick="toggleSchemaService('schema-svc-3')">
+                        <span>🧾 ORDER SERVICE</span>
+                        <span class="schema-header-right">
+                            <span class="schema-table-count">6 tables</span>
+                            <span class="schema-chevron">▾</span>
+                        </span>
+                    </div>
+                    <div class="schema-service-body">
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Orders</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>user_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>store_id</span><span class="field-tag">FK</span></li>
+                            <li><span>order_number</span><span class="field-tag">unique</span></li>
+                            <li><span>order_status</span></li>
+                            <li><span>subtotal, tax</span></li>
+                            <li><span>delivery_charge</span></li>
+                            <li><span>discount_amount, tip</span></li>
+                            <li><span>total</span></li>
+                            <li><span>payment_method</span></li>
+                            <li><span>delivery_type</span></li>
+                            <li class="fk"><span>delivery_address_id</span><span class="field-tag">FK</span></li>
+                            <li><span>created_at</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">OrderItems</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>order_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>product_size_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>crust_id</span><span class="field-tag">FK</span></li>
+                            <li><span>quantity</span></li>
+                            <li><span>base_price</span></li>
+                            <li><span>size_adjustment</span></li>
+                            <li><span>crust_adjustment</span></li>
+                            <li><span>subtotal</span></li>
+                            <li><span>special_instructions</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card junction">
+                        <div class="schema-table-name">OrderItemToppings<span class="junction-tag">Junction</span></div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>order_item_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>topping_id</span><span class="field-tag">FK</span></li>
+                            <li><span>quantity</span></li>
+                            <li><span>price (snapshot)</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card junction">
+                        <div class="schema-table-name">OrderItemAddOns<span class="junction-tag">Junction</span></div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>order_item_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>addon_id</span><span class="field-tag">FK</span></li>
+                            <li><span>quantity</span></li>
+                            <li><span>price (snapshot)</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Reviews</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>order_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>user_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li><span>rating (1-5)</span></li>
+                            <li><span>comment</span></li>
+                            <li><span>is_verified_purchase</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card junction">
+                        <div class="schema-table-name">Favorites<span class="junction-tag">Junction</span></div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>user_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>product_id</span><span class="field-tag">FK</span></li>
+                            <li><span>added_at</span></li>
+                            <li><span>(unique: user+product)</span></li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                <div class="schema-service" id="schema-svc-4">
+                    <div class="schema-service-header" style="background:#2f8f5b;" onclick="toggleSchemaService('schema-svc-4')">
+                        <span>💳 PAYMENT SERVICE</span>
+                        <span class="schema-header-right">
+                            <span class="schema-table-count">5 tables</span>
+                            <span class="schema-chevron">▾</span>
+                        </span>
+                    </div>
+                    <div class="schema-service-body">
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Payments</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>order_id (1:1)</span><span class="field-tag">FK</span></li>
+                            <li><span>payment_status</span></li>
+                            <li><span>payment_method</span></li>
+                            <li><span>amount</span></li>
+                            <li><span>stripe_charge_id</span></li>
+                            <li><span>stripe_intent_id</span></li>
+                            <li><span>failure_reason</span></li>
+                            <li><span>paid_at</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Coupons</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li><span>code</span><span class="field-tag">unique</span></li>
+                            <li><span>discount_type</span></li>
+                            <li><span>discount_value</span></li>
+                            <li><span>min_order_value</span></li>
+                            <li><span>max_uses</span></li>
+                            <li><span>max_uses_per_user</span></li>
+                            <li><span>uses_count</span></li>
+                            <li><span>start/end_date</span></li>
+                            <li><span>is_active</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">LoyaltyAccounts</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>user_id (1:1)</span><span class="field-tag">FK</span></li>
+                            <li><span>points_balance</span></li>
+                            <li><span>tier</span></li>
+                            <li><span>total_spent</span></li>
+                            <li><span>member_since</span></li>
+                            <li><span>is_active</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">LoyaltyTransactions</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>loyalty_account_id</span><span class="field-tag">FK</span></li>
+                            <li><span>transaction_type</span></li>
+                            <li><span>points</span></li>
+                            <li class="fk"><span>order_id</span><span class="field-tag">FK</span></li>
+                            <li><span>description</span></li>
+                            <li><span>expiry_date</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Refunds</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>payment_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>order_id</span><span class="field-tag">FK</span></li>
+                            <li><span>refund_amount</span></li>
+                            <li><span>refund_status</span></li>
+                            <li><span>reason</span></li>
+                            <li class="fk"><span>initiated_by</span><span class="field-tag">FK</span></li>
+                            <li><span>processed_at</span></li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                <div class="schema-service" id="schema-svc-5">
+                    <div class="schema-service-header" style="background:#6e58a8;" onclick="toggleSchemaService('schema-svc-5')">
+                        <span>🔔 NOTIFICATION SERVICE</span>
+                        <span class="schema-header-right">
+                            <span class="schema-table-count">3 tables</span>
+                            <span class="schema-chevron">▾</span>
+                        </span>
+                    </div>
+                    <div class="schema-service-body">
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">Notifications</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>user_id</span><span class="field-tag">FK</span></li>
+                            <li class="fk"><span>order_id</span><span class="field-tag">FK</span></li>
+                            <li><span>notification_type</span></li>
+                            <li><span>title</span></li>
+                            <li><span>message</span></li>
+                            <li><span>channel (push/sms/email/whatsapp)</span></li>
+                            <li><span>is_read</span></li>
+                            <li><span>created_at</span></li>
+                            <li><span>read_at</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">NotificationTemplates</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li><span>template_code</span><span class="field-tag">unique</span></li>
+                            <li><span>channel</span></li>
+                            <li><span>subject</span></li>
+                            <li><span>body_template</span></li>
+                            <li><span>is_active</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">DeliveryLogs</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>notification_id</span><span class="field-tag">FK</span></li>
+                            <li><span>provider</span><span class="field-tag">Bulkgate/FCM</span></li>
+                            <li><span>delivery_status</span></li>
+                            <li><span>provider_message_id</span></li>
+                            <li><span>attempted_at</span></li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                <div class="schema-service" id="schema-svc-6">
+                    <div class="schema-service-header" style="background:#51677d;" onclick="toggleSchemaService('schema-svc-6')">
+                        <span>📊 REPORTING SERVICE</span>
+                        <span class="schema-header-right">
+                            <span class="schema-table-count">3 tables</span>
+                            <span class="schema-chevron">▾</span>
+                        </span>
+                    </div>
+                    <div class="schema-service-body">
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">SalesReports</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>store_id</span><span class="field-tag">FK</span></li>
+                            <li><span>report_date</span></li>
+                            <li><span>total_orders</span></li>
+                            <li><span>total_revenue</span></li>
+                            <li><span>avg_order_value</span></li>
+                            <li><span>generated_at</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">AuditLogs</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>user_id</span><span class="field-tag">FK</span></li>
+                            <li><span>action_type</span></li>
+                            <li><span>entity_name</span></li>
+                            <li><span>entity_id</span></li>
+                            <li><span>change_summary</span></li>
+                            <li><span>created_at</span></li>
+                        </ul>
+                    </div>
+                    <div class="schema-table-card">
+                        <div class="schema-table-name">ReportExports</div>
+                        <ul class="schema-fields">
+                            <li class="pk"><span>id</span><span class="field-tag">PK</span></li>
+                            <li class="fk"><span>requested_by</span><span class="field-tag">FK</span></li>
+                            <li><span>report_type</span><span class="field-tag">PDF/Excel</span></li>
+                            <li><span>filter_range</span><span class="field-tag">Daily/Weekly/Monthly</span></li>
+                            <li><span>file_url</span></li>
+                            <li><span>created_at</span></li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                <div class="diagram-caption" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">Figure 3: Complete Database Schema (ER Diagram) - All Tables by Service Ownership</div>
+
+            <h2>12.1 Key Relationships</h2>
+            <ul>
+                <li>Users (1) $\rightarrow$ (Many) Addresses, Orders, Reviews, PunchRecords, Notifications, Favorites</li>
+                <li>Users (1) $\rightarrow$ (1) LoyaltyAccounts</li>
+                <li>Businesses (1) $\rightarrow$ (Many) Stores, BusinessDocuments</li>
+                <li>Stores (Many) $\leftrightarrow$ (Many) Products via StoreProducts (per-store inventory)</li>
+                <li>Orders (1) $\rightarrow$ (Many) OrderItems</li>
+                <li>OrderItems (1) $\rightarrow$ (Many) OrderItemToppings, OrderItemAddOns</li>
+            </ul>
+
+            <h2>12.2 Database Additions for Favourites and Reordering</h2>
+            <p>To support Favourites and trace Reorder statistics, the following schema expansions are implemented in the database:</p>
+
+            <h3>Table: <code>ordering.Favorites</code></h3>
+            <ul>
+                <li><strong>Id</strong> (PK, UNIQUEIDENTIFIER): Primary key of the favorite record.</li>
+                <li><strong>UserId</strong> (FK, UNIQUEIDENTIFIER): References <code>identity.Users.Id</code>. Indexed for lookup.</li>
+                <li><strong>ProductId</strong> (FK, UNIQUEIDENTIFIER): References <code>catalog.Products.Id</code>.</li>
+                <li><strong>CustomizationJson</strong> (NVARCHAR(MAX)): JSON string describing crust size, toppings, and add-ons.</li>
+                <li><strong>Alias</strong> (NVARCHAR(100)): Custom name provided by the user (e.g., 'My Cheesy Treat').</li>
+                <li><strong>CreatedAt</strong> (DATETIME2): Timestamp representing when the record was saved.</li>
+            </ul>
+
+            <h3>Table: <code>ordering.Orders</code> (Schema Alterations)</h3>
+            <ul>
+                <li><strong>ReorderedFromId</strong> (FK, UNIQUEIDENTIFIER, Nullable): A self-referencing foreign key linking to <code>ordering.Orders.Id</code>.</li>
+                <li><strong>Channel</strong> (NVARCHAR(50)): Represents the order entry source (e.g., <code>'Mobile'</code>, <code>'Web_Admin'</code>, <code>'POS'</code>, <code>'Reorder_Mobile'</code>).</li>
+            </ul>
+        </section>
+
+        <!-- 13. INTEGRATIONS -->
+        <section id="13-external-integrations">
+            <h1>13. External Integrations</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Integration Partner</th>
+                        <th>Purpose</th>
+                        <th>Accessing Service</th>
+                        <th>Security & Error Recovery</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Stripe Gateway</strong></td>
+                        <td>Card payments, Google Pay, UPI validations</td>
+                        <td>Payment Service</td>
+                        <td>Managed Identity credentials, client-side SDK tokenization, and Polly circuit breaker (30s timeout).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bulkgate API</strong></td>
+                        <td>SMS, WhatsApp order updates, and marketing</td>
+                        <td>Notification Service</td>
+                        <td>API Keys in Key Vault, async processing via Service Bus, and dead-letter fallback.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Firebase FCM</strong></td>
+                        <td>Push notifications to iOS and Android apps</td>
+                        <td>Notification Service</td>
+                        <td>Firebase Service Account JSON in Vault; failed tokens purged from DB via cron jobs.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Google Maps API</strong></td>
+                        <td>Address geocoding, store locator queries</td>
+                        <td>Store & Order Services</td>
+                        <td>Encrypted browser keys restricted by package/domain names.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WhatsApp Cloud API</strong></td>
+                        <td>Direct messaging (alternative to Bulkgate)</td>
+                        <td>Notification Service</td>
+                        <td>OAuth tokens in Vault, message template validations, and retry loops.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>POS Adapter</strong></td>
+                        <td>Kitchen docket printing & stock reporting</td>
+                        <td>Store Service</td>
+                        <td>Service Bus subscriptions, local network polling, and offline queue storage.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 14. DEPLOYMENT -->
+        <section id="14-deployment-architecture">
+            <h1>14. Deployment Architecture</h1>
+            <h2>14.1 Container Image Pipeline</h2>
+            <ol>
+                <li>Developer pushes code to GitHub main branch.</li>
+                <li>GitHub Actions / Azure DevOps pipeline triggers automatically.</li>
+                <li>Docker image built (<code>order-service: v1.2.4</code> tag from semantic version + git SHA).</li>
+                <li>Image scanned for CVEs by Microsoft Defender for Containers.</li>
+                <li>Image pushed to ACR (<code>acrreddyspizza.azurecr.io</code>).</li>
+                <li><code>kubectl apply</code> deploys new version to AKS with rolling update strategy.</li>
+                <li>Health checks verify Pods are ready before routing traffic.</li>
+            </ol>
+
+            <h2>14.2 Kubernetes Topology</h2>
+            <ul>
+                <li><strong>Namespace:</strong> default</li>
+                <li><strong>Deployments:</strong> one per service (7 total), each with 2 Pod replicas</li>
+                <li><strong>Resource limits:</strong> 100m CPU request, 500m limit; 128Mi memory request, 512Mi limit</li>
+                <li><strong>Liveness probe:</strong> GET /health every 30s</li>
+                <li><strong>Readiness probe:</strong> GET /ready every 10s</li>
+                <li><strong>HPA auto-scaling:</strong> min 2 Pods, max 10 Pods, target 70% CPU</li>
+                <li><strong>ServiceAccount</strong> with Workload Identity annotation links each Pod to its Managed Identity</li>
+            </ul>
+
+            <h2>14.3 Environments</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Environment</th>
+                        <th>Compute Platform</th>
+                        <th>Database Configuration</th>
+                        <th>Intended Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Development</strong></td>
+                        <td>Local workstations (Docker Compose)</td>
+                        <td>Local SQL Server Express instances</td>
+                        <td>Coding, local feature builds, and unit testing.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Staging</strong></td>
+                        <td>Azure Kubernetes Service (Small node)</td>
+                        <td>Azure SQL (Basic, 5 DTUs)</td>
+                        <td>QA, UAT checks, and API validation.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Production</strong></td>
+                        <td>AKS Cluster (D2s v5 Multi-Node)</td>
+                        <td>Azure SQL (Serverless)</td>
+                        <td>Live client traffic, sales operations, and backups.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 15. OBSERVABILITY -->
+        <section id="15-monitoring-observability">
+            <h1>15. Monitoring & Observability</h1>
+            <h2>15.1 Application Insights Dashboards</h2>
+            <p>Monitors API performance, throughput, error rates (HTTP 5xx), and database request times. Business events (LoyaltyPointsEarned, OrdersPlaced) are sent to telemetry charts to track real-time revenue and cart trends.</p>
+
+            <h2>15.2 Log Analytics & KQL Queries</h2>
+            <p>Logs from AKS nodes, Application Gateways, and SQL Databases flow to a unified Log Analytics workspace. A single correlation ID is generated at the gateway and forwarded in all HTTP headers and Service Bus payloads. This enables tracing an order's lifecycle using KQL:</p>
+            <pre><code>AppTraces 
+| where Properties.CorrelationId == 'order-correlation-uuid' 
+| project Timestamp, Message, RoleName, SeverityLevel</code></pre>
+
+            <h2>15.3 Alerting Rules</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Alert Condition</th>
+                        <th>Trigger Severity</th>
+                        <th>Trigger Notification Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Error rate &gt; 5% for 5 min</td>
+                        <td>High</td>
+                        <td>Email/Slack alert to on-call engineers</td>
+                    </tr>
+                    <tr>
+                        <td>Order placement rate falls below average threshold</td>
+                        <td>Critical</td>
+                        <td>SMS pager alert to lead engineer</td>
+                    </tr>
+                    <tr>
+                        <td>SQL query execution time threshold exceeded</td>
+                        <td>Medium</td>
+                        <td>Slack performance channel warning</td>
+                    </tr>
+                    <tr>
+                        <td>Service Bus DLQ size &gt; 10</td>
+                        <td>High</td>
+                        <td>Slack channel ticket creation</td>
+                    </tr>
+                    <tr>
+                        <td>Kubernetes Pod restart loop</td>
+                        <td>Critical</td>
+                        <td>SMS pager alert to on-call engineer</td>
+                    </tr>
+                    <tr>
+                        <td>Stripe payment API failure rate threshold exceeded</td>
+                        <td>High</td>
+                        <td>Email alert + Stripe status integration check</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 16. ADR RECORDS -->
+        <section id="16-adrs">
+            <h1>16. Architecture Decision Records (ADRs)</h1>
+            
+            <h3>ADR-001: Database-per-Service on a Single Server</h3>
+            <p><strong>Decision:</strong> Independent databases for each microservice, hosted on a single Azure SQL Database Server.</p>
+            <p><strong>Context:</strong> Microservices best practice dictates database-per-service to prevent tight coupling of data structures. At the same time, maintaining separate servers for each service creates massive cost and administrative overhead.</p>
+            <p><strong>Trade-offs:</strong> Enforces strict data boundary isolation (zero cross-database joins, only API-level integrations) while maintaining a centralized server for easy administration and cost optimization.</p>
+
+            <h3>ADR-002: Sync vs Async Event Processing</h3>
+            <p><strong>Decision:</strong> Async via Azure Service Bus.</p>
+            <p><strong>Context:</strong> Order placement triggers multiple downstream actions: SMS, push notification, PDF generation, POS docket printing. Synchronous calls would create cascading failure risks.</p>
+            <p><strong>Trade-offs:</strong> Adds complexity, but enables optimized response times, isolated failures, and automatic retries.</p>
+
+            <h3>ADR-003: APIM for JWT Validation</h3>
+            <p><strong>Decision:</strong> JWT validated at APIM layer, not in each service.</p>
+            <p><strong>Context:</strong> Each service could validate JWTs independently, but this requires duplicate code, key distribution, and re-parsing on every request.</p>
+            <p><strong>Trade-offs:</strong> Centralized validation simplifies services, reduces duplicate code, and enables centralized rate limiting and policy management.</p>
+
+            <h3>ADR-004: 7 Microservices Architecture Bounded Contexts</h3>
+            <p><strong>Decision:</strong> Implement exactly 7 core microservices designed from scratch.</p>
+            <p><strong>Context:</strong> Designing the system from scratch requires establishing clear domain boundaries. Splitting or merging services later incurs high migration costs, while over-fragmentation leads to operational complexity.</p>
+            <p><strong>Trade-offs:</strong> Provides clean separation of concerns, manageable resource scaling (2 pods per service), and maps directly to the database-per-service topology, avoiding over-fragmentation.</p>
+
+            <h3>ADR-005: Static Web Apps for Frontends</h3>
+            <p><strong>Decision:</strong> Azure Static Web Apps host React admin and inHouse POS apps.</p>
+            <p><strong>Context:</strong> Static Web Apps are purpose-built for SPAs with built-in CI/CD, custom domain support, and authentication integration.</p>
+            <p><strong>Trade-offs:</strong> Limited to static content (no server-side rendering), but very cheap, very fast, and zero server management.</p>
+
+            <h3>ADR-006: Reordering Validation Strategy</h3>
+            <p><strong>Decision:</strong> Dynamic re-evaluation of items, inventory, and pricing at checkout instead of copying old invoices.</p>
+            <p><strong>Context:</strong> Reordering clones a past checkout. Over months, menu prices, taxes, and item availability change. Simply copying old values could sell retired products or under-charge orders.</p>
+            <p><strong>Trade-offs:</strong> Adds minor latency, but prevents out-of-stock complaints, guarantees pricing accuracy, and ensures tax compliance.</p>
+
+            <h3>ADR-007: Favorites Custom Configurations Storage</h3>
+            <p><strong>Decision:</strong> Serialize custom pizza options as JSON strings inside a NVARCHAR(MAX) column in ordering.Favorites, rather than using child join-tables.</p>
+            <p><strong>Context:</strong> Customers customize toppings, sizes, and crusts. Joining Favorites with dynamic toppings, add-ons, and catalog structures creates heavy SQL queries.</p>
+            <p><strong>Trade-offs:</strong> Prevents advanced database queries on specific toppings, but optimizes catalog load times, reduces relational DB overhead, and simplifies REST API payloads.</p>
+        </section>
+
+        <!-- Document Footer Stamp Block -->
+        <footer class="doc-footer-block">
+            <div class="fl">Prepared by <strong>XOIT Transformation Pvt Ltd</strong>
+                <div class="bn">Reddy's Pizza<small>Technical Architecture & Design Document</small></div>
+            </div>
+            <div class="stamp">v1.0.0 · 2026-06-21</div>
+        </footer>
+    </main>
+</div>
+
+<!-- CORE DOCUMENT FRAME (FOOTER) -->
+<div class="doc-footer-frame">
+    <span>Technical Architecture & Design Document- Confidential Tech Document</span>
+    <span>Page 1 of 1 (HTML Single Page View)</span>
+</div>
+
+<!-- BACK TO TOP BUTTON -->
+<div class="back-to-top" id="backToTopBtn" onclick="scrollToTop()">
+    ▲
+</div>
+
+<script>
+    // Theme Toggle Logic
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'light' : 'light';
+        html.setAttribute('data-theme', newTheme);
+        
+        const btnIcon = document.getElementById('theme-btn-icon');
+        const btnText = document.getElementById('theme-btn-text');
+        
+        if (newTheme === 'dark') {
+            btnIcon.textContent = '☀️';
+            btnText.textContent = 'Light Mode';
+        } else {
+            btnIcon.textContent = '🌙';
+            btnText.textContent = 'Dark Mode';
+        }
+    }
+
+    // Scroll Logic for Navigation Active Items and Back to Top
+    window.addEventListener('scroll', () => {
+        const sections = document.querySelectorAll('section');
+        const navItems = document.querySelectorAll('.nav-item');
+        const backToTopBtn = document.getElementById('backToTopBtn');
+        
+        let currentSectionId = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (pageYOffset >= sectionTop - 150) {
+                currentSectionId = section.getAttribute('id');
+            }
+        });
+
+        navItems.forEach(item => {
+            item.classList.remove('active');
+            const link = item.querySelector('a');
+            if (link.getAttribute('href') === `#${currentSectionId}`) {
+                item.classList.add('active');
+            }
+        });
+
+        if (window.pageYOffset > 300) {
+            backToTopBtn.classList.add('visible');
+        } else {
+            backToTopBtn.classList.remove('visible');
+        }
+    });
+
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // Collapsible DB Schema Service Cards
+    function toggleSchemaService(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.toggle('collapsed');
+        }
+    }
+
+    function toggleAllSchemaServices(collapse) {
+        document.querySelectorAll('.schema-service').forEach(el => {
+            if (collapse) {
+                el.classList.add('collapsed');
+            } else {
+                el.classList.remove('collapsed');
+            }
+        });
+    }
+</script>
+
+<script>
+    /* ── Hamburger / Sidebar drawer ── */
+    (function () {
+        const btn     = document.getElementById('hamburgerBtn');
+        const overlay = document.getElementById('sidebarOverlay');
+        const sidebar = document.querySelector('.sidebar');
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (btn) btn.addEventListener('click', openSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+
+        /* Close drawer when a nav link is tapped */
+        document.querySelectorAll('.nav-item a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth <= 992) closeSidebar();
+            });
+        });
+    })();
+</script>
+</body>
+</html>

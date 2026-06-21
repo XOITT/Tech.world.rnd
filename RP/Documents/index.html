@@ -1,1 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reddy's Pizza App - Documents Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --sidebar-width: 280px;
+      --header-height: 70px;
+    }
+
+    #landing-screen {
+      --bg: #030303;
+      --bg-gradient: linear-gradient(135deg, #000000 0%, #0c0202 50%, #180000 100%);
+      --surface: #0a0a0c;
+      --border: rgba(225, 29, 42, 0.15);
+      --red: #E11D2A;
+      --red-hover: #f02432;
+      --red-glow: rgba(225, 29, 42, 0.45);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    #dashboard-screen {
+      --bg: #f8fafc;
+      --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%);
+      --surface: #ffffff;
+      --surface-card: #ffffff;
+      --surface-hover: #f8fafc;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-hover: rgba(225, 29, 42, 0.35);
+      --red: #E11D2A;
+      --red-hover: #c91420;
+      --red-glow: rgba(225, 29, 42, 0.15);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      background-color: var(--bg);
+      overflow: hidden;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--surface);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--red);
+    }
+
+    /* Screen Wrapper states */
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96);
+      z-index: 1;
+    }
+
+    /* ==========================================================================
+       1. LANDING SCREEN STYLES
+       ========================================================================== */
+    #landing-screen {
+      background: var(--bg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    /* Subtle Background Animation */
+    .bg-glow {
+      position: absolute;
+      width: 900px;
+      height: 900px;
+      background: radial-gradient(circle, var(--red-glow) 0%, rgba(0, 0, 0, 0) 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.55;
+      animation: pulse 10s infinite alternate ease-in-out;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.85);
+        opacity: 0.35;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1.15);
+        opacity: 0.75;
+      }
+    }
+
+    .landing-container {
+      position: relative;
+      z-index: 10;
+      background: rgba(10, 10, 12, 0.75);
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      padding: 60px 85px;
+      text-align: center;
+      max-width: 650px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 80px rgba(225, 29, 42, 0.05);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 35px;
+      margin-bottom: 40px;
+    }
+
+    .logos img {
+      height: 70px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: transparent;
+      padding: 4px;
+    }
+
+    .logos img:hover {
+      transform: scale(1.1) translateY(-3px);
+      filter: drop-shadow(0 5px 15px rgba(225, 29, 42, 0.2));
+    }
+
+    .divider {
+      width: 2px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    h1.landing-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      margin: 0 0 16px 0;
+      background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.03em;
+    }
+
+    p.landing-desc {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin: 0 0 45px 0;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* Glowing CTA Button */
+    .btn-portal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 44px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--red);
+      text-decoration: none;
+      border-radius: 99px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px var(--red-glow);
+    }
+
+    .btn-portal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .btn-portal:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -5px var(--red-glow);
+      background: var(--red-hover);
+    }
+
+    .btn-portal:hover::before {
+      left: 100%;
+    }
+
+    .btn-portal svg {
+      margin-left: 12px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-portal:hover svg {
+      transform: translateX(6px);
+    }
+
+    /* ==========================================================================
+       2. DASHBOARD SCREEN STYLES
+       ========================================================================== */
+    #dashboard-screen {
+      display: flex;
+      z-index: 5;
+      background-color: var(--bg);
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100%;
+      background-color: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-brand img.logo-icon {
+      height: 35px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .sidebar-brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-main) 0%, #475569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar-brand-title span {
+      color: var(--red);
+      -webkit-text-fill-color: var(--red);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 24px 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .nav-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      padding-left: 12px;
+      margin-bottom: 8px;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      position: relative;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.925rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .nav-link.active {
+      color: var(--red);
+      background-color: rgba(225, 29, 42, 0.08);
+      border: 1px solid rgba(225, 29, 42, 0.2);
+    }
+
+    .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 25%;
+      height: 50%;
+      width: 4px;
+      background-color: var(--red);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .nav-link-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-link svg.icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .nav-link svg.chevron {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-link.expanded svg.chevron {
+      transform: rotate(90deg);
+    }
+
+    /* Submenu styling */
+    .submenu-list {
+      list-style: none;
+      padding-left: 36px;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      max-height: 500px; /* High enough limit to auto-expand */
+    }
+
+    .submenu-list.collapsed {
+      max-height: 0;
+      margin-top: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .submenu-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .submenu-link:hover {
+      color: var(--text-main);
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .submenu-link.active {
+      color: var(--red);
+      background-color: rgba(225, 29, 42, 0.04);
+      border-color: rgba(225, 29, 42, 0.1);
+      font-weight: 600;
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .sidebar-footer img {
+      height: 20px;
+      width: auto;
+      opacity: 0.7;
+      filter: invert(1) brightness(0.2);
+    }
+
+    /* Main Content Area */
+    .content-area {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Content Header Bar */
+    .content-header {
+      height: var(--header-height);
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 90;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hamburger-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .hamburger-btn:hover {
+      color: var(--red);
+    }
+
+    .hamburger-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .breadcrumbs span.current {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .breadcrumbs svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-action {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      color: var(--text-main);
+      border-color: var(--border-hover);
+      background-color: var(--surface-hover);
+    }
+
+    .btn-action svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .btn-action.btn-accent {
+      background: var(--red);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(225, 29, 42, 0.2);
+    }
+
+    .btn-action.btn-accent:hover {
+      background: var(--red-hover);
+      box-shadow: 0 6px 15px rgba(225, 29, 42, 0.3);
+    }
+
+    /* Content Panels */
+    .content-body {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+      background-color: var(--bg);
+    }
+
+    .content-panel {
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+
+    .content-panel.active {
+      display: block;
+    }
+
+    /* Overview Home Layout */
+    .overview-layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .welcome-section {
+      margin-bottom: 40px;
+    }
+
+    .welcome-section h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--text-main) 0%, #475569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-section p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      font-weight: 300;
+    }
+
+    /* Stat Cards Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: all 0.25s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(225, 29, 42, 0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--red);
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-info h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-info .stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Document Grid Layout */
+    .docs-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .doc-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .doc-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--red);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .doc-card:hover {
+      border-color: rgba(225, 29, 42, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(225, 29, 42, 0.03);
+    }
+
+    .doc-card:hover::after {
+      opacity: 1;
+    }
+
+    .doc-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .doc-card-icon {
+      width: 54px;
+      height: 54px;
+      background: rgba(225, 29, 42, 0.08);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--red);
+    }
+
+    .doc-card-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .doc-badge {
+      font-size: 0.725rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: var(--text-muted);
+    }
+
+    .doc-card h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .doc-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      font-weight: 300;
+      margin-bottom: 24px;
+      flex-grow: 1;
+    }
+
+    .doc-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .doc-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .doc-features svg {
+      width: 16px;
+      height: 16px;
+      color: var(--red);
+      flex-shrink: 0;
+    }
+
+    .doc-btn {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.02);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.25s ease;
+    }
+
+    .doc-card:hover .doc-btn {
+      background: var(--red);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 6px 15px rgba(225, 29, 42, 0.2);
+    }
+
+    .doc-btn svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    .doc-btn:hover svg {
+      transform: translateX(4px);
+    }
+
+    /* Iframe panel elements */
+    #iframe-panel {
+      position: relative;
+    }
+
+    .iframe-wrapper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: #fff;
+    }
+
+    .iframe-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+    }
+
+    /* Loading Overlay inside Iframe container */
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .loading-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(225, 29, 42, 0.1);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-overlay span {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* Click overlay to dismiss sidebar on mobile */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 99;
+      display: none;
+    }
+
+    /* ==========================================================================
+       3. RESPONSIVE MEDIA QUERIES
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .landing-container {
+        padding: 50px 40px;
+        margin: 20px;
+      }
+
+      h1.landing-title {
+        font-size: 2.25rem;
+      }
+
+      .stats-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .docs-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .hamburger-btn {
+        display: inline-flex;
+      }
+
+      /* Sidebar mobile behavior */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      .btn-action span {
+        display: none; /* Hide button text on mobile action bar */
+      }
+      
+      .btn-action {
+        padding: 8px 10px;
+      }
+    }
+
+    /* Collapsed Sidebar on Desktop */
+    #dashboard-screen.sidebar-collapsed .sidebar {
+      width: 80px;
+    }
+
+    #dashboard-screen.sidebar-collapsed .sidebar-brand {
+      justify-content: center;
+      padding: 0;
+    }
+
+    #dashboard-screen.sidebar-collapsed .sidebar-brand-title,
+    #dashboard-screen.sidebar-collapsed .nav-link span span,
+    #dashboard-screen.sidebar-collapsed .nav-link svg.chevron,
+    #dashboard-screen.sidebar-collapsed .submenu-list,
+    #dashboard-screen.sidebar-collapsed .sidebar-footer span {
+      display: none !important;
+    }
+
+    #dashboard-screen.sidebar-collapsed .nav-section-title {
+      text-align: center;
+      padding: 0;
+      font-size: 0.6rem;
+      letter-spacing: 0px;
+    }
+
+    #dashboard-screen.sidebar-collapsed .nav-link {
+      justify-content: center;
+      padding: 12px;
+    }
+
+    #dashboard-screen.sidebar-collapsed .nav-link-content {
+      gap: 0;
+    }
+
+    #dashboard-screen.sidebar-collapsed .sidebar-footer {
+      justify-content: center;
+      padding: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==========================================================================
+       1. LANDING SCREEN
+       ========================================================================== -->
+  <div id="landing-screen" class="screen">
+    <div class="bg-glow"></div>
+
+    <div class="landing-container">
+      <div class="logos">
+        <img src="Xoiit_Logo.png" alt="Xoiit Logo">
+        <div class="divider"></div>
+        <img src="ReddysLogo.jpeg" alt="Reddy's Pizza Logo">
+      </div>
+
+      <h1 class="landing-title">Reddy's Pizza App</h1>
+      <p class="landing-desc">Explore the design, systems flow, and functional blueprints created by XOIT Transformation. A full suite of technical and visual document resources.</p>
+
+      <button onclick="enterDashboard()" class="btn-portal">
+        View Documents
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       2. ADMIN DASHBOARD SCREEN
+       ========================================================================== -->
+  <div id="dashboard-screen" class="screen hidden">
+    <!-- Click Overlay for Mobile Sidebar Dismissal -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar(false)"></div>
+
+    <!-- Sidebar Navigation panel -->
+    <aside class="sidebar" id="sidebarPanel">
+      <div class="sidebar-brand">
+        <img src="ReddysLogo.jpeg" alt="Reddy's Logo" class="logo-icon">
+        <div class="sidebar-brand-title">REDDY'S <span>PIZZA</span></div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div>
+          <div class="nav-section-title">Overview</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a onclick="showOverview()" class="nav-link active" id="nav-overview">
+                <span class="nav-link-content">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                  </svg>
+                  <span>Dashboard Home</span>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="nav-section-title">Design Resources</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a onclick="toggleAccordion('docs-submenu')" class="nav-link expanded" id="nav-docs-category">
+                <span class="nav-link-content">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  <span>Documents</span>
+                </span>
+                <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </a>
+              
+              <!-- Accordion Documents Submenu -->
+              <ul class="submenu-list" id="docs-submenu">
+                <li>
+                  <a onclick="loadDocument('blueprint')" class="submenu-link" id="submenu-blueprint">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 14px; height: 14px; flex-shrink: 0;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    <span>Layout Blueprint</span>
+                  </a>
+                </li>
+                <li>
+                  <a onclick="loadDocument('architecture')" class="submenu-link" id="submenu-architecture">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 14px; height: 14px; flex-shrink: 0;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                    </svg>
+                    <span>Architecture Design</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <img src="Xoiit_Logo.png" alt="Xoiit">
+        <span>Admin Portal v1.0</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- Content Top Header Bar -->
+      <header class="content-header">
+        <div class="header-left">
+          <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle Navigation">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          
+          <div class="breadcrumbs" id="breadcrumbTrail">
+            <span>Portal</span>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <span class="current">Dashboard Home</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- Reload Iframe content (Only visible if doc is open) -->
+          <button onclick="reloadDocument()" class="btn-action" id="action-reload" style="display: none;" title="Reload Content">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"></path>
+            </svg>
+            <span>Reload</span>
+          </button>
+
+          <!-- Open loaded document in new tab (Only visible if doc is open) -->
+          <button onclick="openInNewTab()" class="btn-action" id="action-external" style="display: none;" title="Open in New Tab">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+            <span>Expand</span>
+          </button>
+
+          <!-- Close Dashboard button -->
+          <button onclick="exitDashboard()" class="btn-action btn-accent" title="Back to Landing">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span>Exit Portal</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Content Body panels -->
+      <div class="content-body">
+        
+        <!-- ==============================
+             PANEL A: OVERVIEW / DASHBOARD HOME
+             ============================== -->
+        <div class="content-panel active" id="overview-panel">
+          <div class="overview-layout">
+            <div class="welcome-section">
+              <h2 id="greeting-text">System Documentation Portal</h2>
+              <p>Welcome to the central portal. Access, review, and analyze functional specs and technical architecture reviews.</p>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>Available Specs</h3>
+                  <div class="stat-value">2 Documents</div>
+                </div>
+              </div>
+              
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>Platform Tier</h3>
+                  <div class="stat-value">AKS / SQL</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>Review Status</h3>
+                  <div class="stat-value">Completed</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documents Grid -->
+            <div class="docs-section-title">Select a System Document</div>
+            
+            <div class="docs-grid">
+              <!-- Document 1 Card -->
+              <div class="doc-card" onclick="loadDocument('blueprint')">
+                <div>
+                  <div class="doc-card-header">
+                    <div class="doc-card-icon">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                      </svg>
+                    </div>
+                    <span class="doc-badge">User Experience</span>
+                  </div>
+                  <h3>App Layout & Flow Blueprint</h3>
+                  <p>Detailed wireframe layout, user flows, and interaction specs for ordering app components, kitchen terminals, and managerial dashboards.</p>
+                  
+                  <ul class="doc-features">
+                    <li>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                      <span>Interactive wireframe blocks</span>
+                    </li>
+                    <li>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                      <span>Mobile layout flows and transitions</span>
+                    </li>
+                    <li>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                      <span>Kitchen display terminals routing spec</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <button class="doc-btn">
+                  <span>Open Layout Blueprint</span>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Document 2 Card -->
+              <div class="doc-card" onclick="loadDocument('architecture')">
+                <div>
+                  <div class="doc-card-header">
+                    <div class="doc-card-icon">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                      </svg>
+                    </div>
+                    <span class="doc-badge">Technical Specs</span>
+                  </div>
+                  <h3>Architecture Design Review</h3>
+                  <p>Deep-dive review of system architecture details, databases schemas, Kubernetes deployment layouts, microservices specs, and costs forecasts.</p>
+                  
+                  <ul class="doc-features">
+                    <li>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                      <span>AKS deployment clusters diagram</span>
+                    </li>
+                    <li>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                      <span>Detailed database tables & schemas</span>
+                    </li>
+                    <li>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                      <span>Azure infrastructure pricing forecast</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <button class="doc-btn">
+                  <span>Open Architecture Review</span>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==============================
+             PANEL B: IFRAME COMPONENT LOADER
+             ============================== -->
+        <div class="content-panel" id="iframe-panel">
+          <!-- Loading overlay triggered during iframe source swapping -->
+          <div class="loading-overlay" id="iframeLoadingOverlay">
+            <div class="spinner"></div>
+            <span>Fetching document details...</span>
+          </div>
+          
+          <div class="iframe-wrapper">
+            <iframe id="docViewerIframe" src="" title="Document Viewer"></iframe>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       4. INTERACTION SCRIPTS
+       ========================================================================== -->
+  <script>
+    // Global State management
+    let activeDocType = null;
+    const docPaths = {
+      blueprint: 'Reddys-Pizza-App-Layout-Blueprint.html',
+      architecture: 'Reddys_Pizza_Architecture_Review.html'
+    };
+    const docTitles = {
+      blueprint: 'Layout Blueprint',
+      architecture: 'Architecture Design'
+    };
+
+    // Greeting display removed
+
+    // Screen navigation
+    function enterDashboard() {
+      document.getElementById('landing-screen').classList.add('hidden');
+      document.getElementById('dashboard-screen').classList.remove('hidden');
+      showOverview(); // default to overview
+    }
+
+    function exitDashboard() {
+      document.getElementById('dashboard-screen').classList.add('hidden');
+      document.getElementById('landing-screen').classList.remove('hidden');
+      
+      // Clear loaded iframe resource to release memory
+      const iframe = document.getElementById('docViewerIframe');
+      iframe.src = '';
+      activeDocType = null;
+    }
+
+    // Toggle Collapsible Category Sections
+    function toggleAccordion(id) {
+      const submenu = document.getElementById(id);
+      const parentLink = document.getElementById('nav-docs-category');
+      
+      if (submenu.classList.contains('collapsed')) {
+        submenu.classList.remove('collapsed');
+        parentLink.classList.add('expanded');
+      } else {
+        submenu.classList.add('collapsed');
+        parentLink.classList.remove('expanded');
+      }
+    }
+
+    // Load home dashboard panel
+    function showOverview() {
+      activeDocType = null;
+      
+      // Toggle panels
+      document.getElementById('overview-panel').classList.add('active');
+      document.getElementById('iframe-panel').classList.remove('active');
+      
+      // Reset Navigation active selections
+      document.getElementById('nav-overview').classList.add('active');
+      document.getElementById('submenu-blueprint').classList.remove('active');
+      document.getElementById('submenu-architecture').classList.remove('active');
+      
+      // Reset Actions
+      document.getElementById('action-reload').style.display = 'none';
+      document.getElementById('action-external').style.display = 'none';
+      
+      // Reset breadcrumbs
+      updateBreadcrumbs('Dashboard Home');
+      
+      // Close mobile drawer
+      toggleMobileSidebar(false);
+    }
+
+    // Load individual document into Iframe
+    function loadDocument(type) {
+      if (!docPaths[type]) return;
+      activeDocType = type;
+      
+      const iframe = document.getElementById('docViewerIframe');
+      const loader = document.getElementById('iframeLoadingOverlay');
+      
+      // Activate loading spinner
+      loader.classList.add('active');
+      
+      // Show iframe panel, hide overview
+      document.getElementById('overview-panel').classList.remove('active');
+      document.getElementById('iframe-panel').classList.add('active');
+      
+      // Swap navigation highlights
+      document.getElementById('nav-overview').classList.remove('active');
+      if (type === 'blueprint') {
+        document.getElementById('submenu-blueprint').classList.add('active');
+        document.getElementById('submenu-architecture').classList.remove('active');
+      } else {
+        document.getElementById('submenu-blueprint').classList.remove('active');
+        document.getElementById('submenu-architecture').classList.add('active');
+      }
+      
+      // Load source dynamically
+      iframe.src = docPaths[type];
+      
+      // Trigger actions bar visibility
+      document.getElementById('action-reload').style.display = 'inline-flex';
+      document.getElementById('action-external').style.display = 'inline-flex';
+      
+      // Update breadcrumbs title
+      updateBreadcrumbs('Documents', docTitles[type]);
+      
+      // Hook loading dismiss
+      iframe.onload = () => {
+        loader.classList.remove('active');
+      };
+      
+      // Close mobile drawer
+      toggleMobileSidebar(false);
+    }
+
+    // Iframe controls
+    function reloadDocument() {
+      if (!activeDocType) return;
+      const iframe = document.getElementById('docViewerIframe');
+      const loader = document.getElementById('iframeLoadingOverlay');
+      
+      loader.classList.add('active');
+      iframe.src = docPaths[activeDocType];
+    }
+
+    function openInNewTab() {
+      if (!activeDocType) return;
+      window.open(docPaths[activeDocType], '_blank');
+    }
+
+    // Update breadcrumb trails dynamically
+    function updateBreadcrumbs(section, subsection = null) {
+      const container = document.getElementById('breadcrumbTrail');
+      let html = `<span>Portal</span>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>`;
+      
+      if (subsection) {
+        html += `<span onclick="showOverview()" style="cursor:pointer;" class="hover:text-white">${section}</span>
+                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                 </svg>
+                 <span class="current">${subsection}</span>`;
+      } else {
+        html += `<span class="current">${section}</span>`;
+      }
+      
+      container.innerHTML = html;
+    }
+
+    // Toggle sidebar state (collapsed on desktop, drawer slide-out on mobile)
+    function toggleSidebar() {
+      const width = window.innerWidth;
+      if (width > 900) {
+        const dashboard = document.getElementById('dashboard-screen');
+        dashboard.classList.toggle('sidebar-collapsed');
+      } else {
+        toggleMobileSidebar(true);
+      }
+    }
+
+    // Mobile Sidebar responsiveness drawer triggers
+    function toggleMobileSidebar(show) {
+      const sidebar = document.getElementById('sidebarPanel');
+      const overlay = document.getElementById('sidebarOverlay');
+      
+      if (show) {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+      } else {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      }
+    }
+  </script>
+</body>
+
+</html>
