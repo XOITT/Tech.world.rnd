@@ -1,1 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requirements & Project Estimation: Restaurant Platform | XOIT</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
+    <style>
+        /* DESIGN SYSTEM VARIABLES - LIGHT MODE ONLY */
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --accent-primary: #2563eb;
+            --accent-secondary: #1d4ed8;
+            
+            --card-border: rgba(226, 232, 240, 0.8);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
+            
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --success-border: #a7f3d0;
+            --success-text: #065f46;
+            
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --warning-border: #fde68a;
+            --warning-text: #78350f;
+
+            --danger: #e11d48;
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+            --danger-text: #9f1239;
+
+            --info: #0284c7;
+            --info-bg: #f0f9ff;
+            --info-border: #bae6fd;
+            --info-text: #075985;
+            
+            --proposal-header-bg: #0f172a;
+            --proposal-header-text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Aptos', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Aptos', 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+        }
+
+        /* TOP NAVIGATION & ACTIONS */
+        .top-nav {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-img {
+            max-height: 48px;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-secondary);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-secondary);
+        }
+
+        .roadmap-panel {
+            border: 1px solid var(--info-border);
+            background: var(--info-bg);
+            border-radius: 12px;
+            padding: 24px;
+            transition: opacity 0.25s ease;
+        }
+
+        .proposal-header {
+            background: var(--proposal-header-bg);
+            color: var(--proposal-header-text);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin-bottom: 24px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .proposal-header {
+                padding: 50px 40px;
+                margin-bottom: 40px;
+            }
+        }
+
+        .proposal-header::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .proposal-badge {
+            background: rgba(37, 99, 235, 0.15);
+            color: #60a5fa;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .proposal-header h1 {
+            color: white;
+            font-size: 26px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        @media (min-width: 768px) {
+            .proposal-header h1 {
+                font-size: 38px;
+            }
+        }
+
+        .proposal-header p {
+            color: #94a3b8;
+            font-size: 14px;
+            max-width: 700px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .proposal-header p {
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+        }
+
+        .proposal-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 25px;
+        }
+
+        .meta-field {
+            font-size: 13px;
+        }
+
+        .meta-label {
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            color: #f1f5f9;
+            font-weight: 500;
+        }
+
+        /* NAVIGATION TABS */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap; /* Allows wrapping on small screens */
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            margin-bottom: 20px;
+            border: none;
+            gap: 10px;
+            box-shadow: none;
+        }
+
+        .tab-btn {
+            flex: 1 1 auto; /* Allow buttons to expand and wrap naturally */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease, transform 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        @media (min-width: 768px) {
+            .tabs {
+                flex-wrap: nowrap; /* Keep linear layout on desktop */
+                margin-bottom: 30px;
+            }
+            .tab-btn {
+                padding: 12px 24px;
+                font-size: 14px;
+            }
+        }
+
+        .tab-btn:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            background: var(--bg-tertiary);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        /* SEARCH BAR */
+        .search-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+            box-shadow: var(--card-shadow);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        /* PANEL CONTROLS */
+        .section-panel {
+            display: none;
+        }
+
+        .section-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SECTION STYLING */
+        .section-card {
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .section-card {
+                padding: 40px;
+                margin-bottom: 30px;
+            }
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 16px;
+        }
+
+        .section-title i {
+            color: var(--accent-primary);
+        }
+
+        .section-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        /* REQUIREMENT SCOPE GRID (DISCOVERY) */
+        .scope-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 640px) {
+            .scope-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 24px;
+            }
+        }
+
+        .scope-box {
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-left: 5px solid var(--info);
+            border-radius: 12px;
+            padding: 24px;
+            transition: opacity 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .scope-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.08);
+        }
+
+        .scope-box h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--info-text);
+            border-bottom: 1px solid var(--info-border);
+            padding-bottom: 8px;
+        }
+
+        .scope-box h3 i {
+            color: var(--info);
+            font-size: 18px;
+        }
+
+        .scope-question {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--info-text);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .scope-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .scope-list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--info-text);
+        }
+
+        .scope-list-item i {
+            color: var(--info);
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        /* DELIVERABLES LIST */
+        .deliverables-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 640px) {
+            .deliverables-container {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 16px;
+            }
+        }
+
+        .deliverable-item {
+            border: 1px solid var(--success-border);
+            background: var(--success-bg);
+            color: var(--success-text);
+            padding: 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 14.5px;
+            font-weight: 600;
+            transition: opacity 0.25s ease;
+        }
+
+        .deliverable-item i {
+            color: var(--success);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .deliverable-meta {
+            display: block;
+            font-size: 12px;
+            font-weight: 400;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        /* AMC LISTS & SCOPE */
+        .amc-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 640px) {
+            .amc-grid {
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                gap: 14px;
+            }
+        }
+
+        .amc-card {
+            border: 1px solid var(--card-border);
+            background: var(--bg-primary);
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: opacity 0.25s ease;
+        }
+
+        .amc-card i {
+            color: var(--accent-primary);
+            flex-shrink: 0;
+        }
+
+        /* SIDE BY SIDE ADDONS & EXCLUSIONS */
+        .split-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .split-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .addon-panel {
+            border: 1px solid var(--info-border);
+            background: var(--info-bg);
+            border-radius: 12px;
+            padding: 24px;
+            transition: opacity 0.25s ease;
+        }
+
+        .addon-panel h3 {
+            color: var(--info-text);
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .exclusion-panel {
+            border: 1px solid var(--danger-border);
+            background: var(--danger-bg);
+            border-radius: 12px;
+            padding: 24px;
+            transition: opacity 0.25s ease;
+        }
+
+        .exclusion-panel h3 {
+            color: var(--danger-text);
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bullet-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .addon-panel .bullet-list-item {
+            color: var(--info-text);
+        }
+
+        .exclusion-panel .bullet-list-item {
+            color: var(--danger-text);
+        }
+
+        /* ASSUMPTIONS BLOCK */
+        .assumption-panel {
+            border: 1px solid var(--warning-border);
+            background: var(--warning-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            transition: opacity 0.25s ease;
+        }
+
+        .assumption-panel h3 {
+            color: var(--warning-text);
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .assumption-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 640px) {
+            .assumption-list {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 12px;
+            }
+        }
+
+        .assumption-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--warning-text);
+        }
+
+        /* SIGN-OFF BLOCK */
+        .signoff-section {
+            border-top: 2px dashed var(--card-border);
+            padding-top: 35px;
+            margin-top: 40px;
+        }
+
+        .signoff-intro {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        .sign-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 580px) {
+            .sign-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+        }
+
+        .sign-box {
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 24px;
+            background: var(--bg-primary);
+        }
+
+        .sign-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+        }
+
+        .sign-line {
+            border-bottom: 1px solid var(--text-muted);
+            margin-bottom: 10px;
+            height: 20px;
+        }
+
+        .sign-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            padding: 30px 0;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* APP LAYOUT STYLES */
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--card-border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .sidebar-header .icon-btn {
+            display: inline-flex;
+        }
+
+        .sidebar-footer {
+            display: none;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            background-color: var(--bg-primary);
+        }
+
+        .main-content .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* TIMELINE STYLES */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 20px 0 10px 10px;
+            padding-left: 24px;
+            border-left: 2px solid var(--card-border);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .timeline-item:last-child {
+            margin-bottom: 10px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--accent-primary);
+            border: 3px solid var(--bg-secondary);
+            box-shadow: 0 0 0 2px var(--accent-primary);
+        }
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .timeline-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .timeline-duration {
+            font-size: 11px;
+            font-weight: 600;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--accent-primary);
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+        .timeline-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* COST TABLE STYLES */
+        .cost-table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: var(--bg-secondary);
+        }
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        .cost-table th, .cost-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .cost-table th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .cost-table tr:last-child td {
+            border-bottom: none;
+        }
+        .cost-table td strong {
+            color: var(--accent-primary);
+        }
+
+        /* LAPTOP/DESKTOP STYLING */
+        .sidebar-label {
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            .app-layout {
+                flex-direction: row;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .sidebar {
+                width: 300px;
+                min-width: 300px;
+                height: 100vh;
+                position: sticky;
+                top: 0;
+                background: var(--bg-secondary);
+                border-right: 1px solid var(--card-border);
+                border-bottom: none;
+                padding: 30px 24px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 0;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.01);
+            }
+
+            .sidebar-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+                margin-bottom: 20px;
+                width: 100%;
+                border-bottom: 1px solid var(--card-border);
+                padding-bottom: 20px;
+            }
+
+            .sidebar-header .icon-btn {
+                display: none; /* Hide mobile icon button on desktop */
+            }
+
+            .sidebar-label {
+                display: block;
+                font-size: 10.5px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--text-muted);
+                margin: 15px 0 12px 10px;
+            }
+
+            .tabs {
+                flex-direction: column;
+                flex-wrap: nowrap !important;
+                gap: 6px !important;
+                margin-bottom: 0 !important;
+                width: 100%;
+            }
+
+            .tab-btn {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 11px 16px !important;
+                font-size: 13.5px;
+                background: transparent;
+                border: 1px solid transparent;
+                box-shadow: none;
+                color: var(--text-secondary);
+                transition: all 0.2s ease;
+            }
+
+            .tab-btn:hover {
+                background: var(--bg-tertiary);
+                color: var(--text-primary);
+                border-color: transparent;
+            }
+
+            .tab-btn.active {
+                color: var(--accent-primary) !important;
+                background: rgba(37, 99, 235, 0.08) !important;
+                border-color: transparent !important;
+                box-shadow: none !important;
+            }
+
+            .sidebar-footer {
+                display: block;
+                margin-top: auto;
+                padding-top: 24px;
+                border-top: 1px solid var(--card-border);
+                width: 100%;
+            }
+
+            .sidebar-footer .btn {
+                background: var(--accent-primary);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+                width: 100%;
+            }
+
+            .sidebar-footer .btn:hover {
+                background: var(--accent-secondary);
+            }
+
+            .main-content {
+                padding: 40px;
+                overflow-y: auto;
+                height: 100vh;
+            }
+        }
+
+        /* PRINT STYLING */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .sidebar, .search-container, .sidebar-footer {
+                display: none !important;
+            }
+            .app-layout {
+                display: block !important;
+            }
+            .main-content {
+                padding: 0 !important;
+            }
+            .container {
+                max-width: 100%;
+                padding: 0;
+            }
+            .top-nav, .tabs, .search-container, .btn {
+                display: none !important;
+            }
+            .proposal-header {
+                background: #f8fafc !important;
+                color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+                padding: 30px !important;
+                page-break-after: always;
+            }
+            .proposal-header h1 {
+                color: #0f172a !important;
+            }
+            .proposal-header p {
+                color: #475569 !important;
+            }
+            .proposal-meta {
+                border-top-color: #cbd5e1 !important;
+            }
+            .meta-value {
+                color: #0f172a !important;
+            }
+            .section-panel {
+                display: block !important;
+            }
+            .section-card {
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0 !important;
+                padding: 25px !important;
+                margin-bottom: 25px !important;
+                page-break-inside: avoid;
+            }
+            .scope-box, .amc-card, .addon-panel, .exclusion-panel, .assumption-panel, .sign-box {
+                background: #ffffff !important;
+                border: 1px solid #cbd5e1 !important;
+                opacity: 1 !important;
+            }
+            .deliverable-item {
+                background: #f0fdf4 !important;
+                border: 1px solid #bbf7d0 !important;
+                color: #14532d !important;
+                opacity: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Sidebar / Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="logo.png" onerror="this.src='xoitt_logo.png'" alt="XOIT Transformation" class="logo-img">
+            </div>
+            <button class="icon-btn" onclick="window.print()" title="Print / Save PDF">
+                <i data-lucide="printer"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-label">Document Sections</div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="all">
+                <i data-lucide="layout-grid"></i> <span>Full Overview</span>
+            </button>
+            <button class="tab-btn" data-tab="development">
+                <i data-lucide="code-2"></i> <span>Development Scope</span>
+            </button>
+            <button class="tab-btn" data-tab="discovery">
+                <i data-lucide="help-circle"></i> <span>Discovery Questions</span>
+            </button>
+            <button class="tab-btn" data-tab="offers">
+                <i data-lucide="check-square"></i> <span>XOIT Offers</span>
+            </button>
+            <button class="tab-btn" data-tab="amc">
+                <i data-lucide="shield-check"></i> <span>AMC Coverage</span>
+            </button>
+            <button class="tab-btn" data-tab="rules">
+                <i data-lucide="alert-triangle"></i> <span>Rules & Exclusions</span>
+            </button>
+            <button class="tab-btn" data-tab="estimation">
+                <i data-lucide="calculator"></i> <span>Estimation & Timeline</span>
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="btn btn-outline" onclick="window.print()" style="width: 100%; justify-content: center; gap: 8px;">
+                <i data-lucide="printer"></i> Print / Save PDF
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Search Bar -->
+            <div class="search-container">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="search-input" class="search-input" placeholder="Search scope, deliverables, questions, or exclusions...">
+            </div>
+
+            <!-- Proposal Header -->
+            <div class="proposal-header">
+                <div style="margin-bottom: 20px;">
+                    <span class="proposal-badge" style="margin-bottom: 0;">Requirement Specification & Project Estimation</span>
+                </div>
+                <h1>Restaurant Digital Ordering Platform</h1>
+                <p>This document details the project parameters, core development scope, requirement validation checklist, deliverables, and project timeline/cost estimations structured by XOIT Transformation Pvt Ltd.</p>
+                
+                <div class="proposal-meta">
+                    <div class="meta-field">
+                        <div class="meta-label">Prepared For</div>
+                        <div class="meta-value">Mr. Benjamin Adams</div>
+                    </div>
+                    <div class="meta-field">
+                        <div class="meta-label">Prepared By</div>
+                        <div class="meta-value">XOIT Transformation Pvt Ltd</div>
+                    </div>
+                    <div class="meta-field">
+                        <div class="meta-label">Document Date</div>
+                        <div class="meta-value">June 2026</div>
+                    </div>
+                    <div class="meta-field">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value">Specification & Estimation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN PANELS -->
+
+            <!-- Section 1: Development Scope -->
+            <div class="section-panel active" id="panel-development">
+                <div class="section-card">
+                    <div class="section-title">
+                        <i data-lucide="code-2"></i>
+                        <h2>1. Identified Development Scope</h2>
+                    </div>
+                    <div class="section-desc">
+                        The functional application modules and features identified for platform implementation.
+                    </div>
+
+                    <div class="scope-grid">
+                        <!-- Home Screen / Benchmark UI -->
+                        <div class="scope-box" data-search="home screen benchmark ui front page landing page interface design">
+                            <h3 style="color: var(--accent-primary); border-color: rgba(37, 99, 235, 0.1);"><i data-lucide="layout"></i> Home Screen / Benchmark UI</h3>
+                            <ul class="scope-list">
+                                <li class="scope-list-item"><i data-lucide="sparkles"></i> Responsive Home / Benchmark Screen</li>
+                                <li class="scope-list-item"><i data-lucide="mouse-pointer-click"></i> Interactive Ordering Journeys</li>
+                            </ul>
+                        </div>
+
+                        <!-- User Management -->
+                        <div class="scope-box" data-search="user management sign up sign in otp gmail email login guest forgot change password">
+                            <h3 style="color: var(--accent-primary); border-color: rgba(37, 99, 235, 0.1);"><i data-lucide="users"></i> User Management</h3>
+                            <ul class="scope-list">
+                                <li class="scope-list-item"><i data-lucide="user-plus"></i> Sign up / Sign in</li>
+                                <li class="scope-list-item"><i data-lucide="key-round"></i> OTP / GMAIL Authentication</li>
+                                <li class="scope-list-item"><i data-lucide="mail"></i> Email Login</li>
+                                <li class="scope-list-item"><i data-lucide="user-minus"></i> Guest Checkout Mode</li>
+                                <li class="scope-list-item"><i data-lucide="lock"></i> Forgot / Change Password</li>
+                            </ul>
+                        </div>
+
+                        <!-- Menu Management -->
+                        <div class="scope-box" data-search="menu management menus categories addon dishes choices">
+                            <h3 style="color: var(--accent-primary); border-color: rgba(37, 99, 235, 0.1);"><i data-lucide="book-open"></i> Menu Management</h3>
+                            <ul class="scope-list">
+                                <li class="scope-list-item"><i data-lucide="utensils-crosslines"></i> Menus & Dishes Catalogue</li>
+                                <li class="scope-list-item"><i data-lucide="grid"></i> Categories Management</li>
+                                <li class="scope-list-item"><i data-lucide="plus-circle"></i> Addon & Customization Groups</li>
+                            </ul>
+                        </div>
+
+                        <!-- Order Management -->
+                        <div class="scope-box" data-search="order management order history reorder favorites wishlist">
+                            <h3 style="color: var(--accent-primary); border-color: rgba(37, 99, 235, 0.1);"><i data-lucide="shopping-bag"></i> Order Management</h3>
+                            <ul class="scope-list">
+                                <li class="scope-list-item"><i data-lucide="history"></i> Order History Logs</li>
+                                <li class="scope-list-item"><i data-lucide="refresh-cw"></i> Reorder Functionality</li>
+                                <li class="scope-list-item"><i data-lucide="heart"></i> Favorites / Wishlist</li>
+                            </ul>
+                        </div>
+
+                        <!-- Cart Management -->
+                        <div class="scope-box" data-search="cart management checkout coupon wallet discounts">
+                            <h3 style="color: var(--accent-primary); border-color: rgba(37, 99, 235, 0.1);"><i data-lucide="shopping-cart"></i> Cart Management</h3>
+                            <ul class="scope-list">
+                                <li class="scope-list-item"><i data-lucide="credit-card"></i> Checkout System</li>
+                                <li class="scope-list-item"><i data-lucide="ticket"></i> Coupon & Promo Codes</li>
+                                <li class="scope-list-item"><i data-lucide="wallet"></i> Wallet</li>
+                            </ul>
+                        </div>
+
+                        <!-- Profile Management -->
+                        <div class="scope-box" data-search="profile management update profile address management saved addresses">
+                            <h3 style="color: var(--accent-primary); border-color: rgba(37, 99, 235, 0.1);"><i data-lucide="user-cog"></i> Profile Management</h3>
+                            <ul class="scope-list">
+                                <li class="scope-list-item"><i data-lucide="contact"></i> Update Profile Details</li>
+                                <li class="scope-list-item"><i data-lucide="map-pins"></i> Address Management</li>
+                            </ul>
+                        </div>
+
+                        <!-- Delivery Management -->
+                        <div class="scope-box" data-search="delivery management pickup carryout delivery shipping dispatch">
+                            <h3 style="color: var(--accent-primary); border-color: rgba(37, 99, 235, 0.1);"><i data-lucide="truck"></i> Delivery Management</h3>
+                            <ul class="scope-list">
+                                <li class="scope-list-item"><i data-lucide="store"></i> Pickup / Carryout Logistics</li>
+                                <li class="scope-list-item"><i data-lucide="navigation"></i> Delivery Logistics</li>
+                            </ul>
+                        </div>
+                    </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Business Discovery Scope -->
+    <div class="section-panel active" id="panel-discovery">
+        <div class="section-card">
+            <div class="section-title">
+                <i data-lucide="clipboard-list"></i>
+                <h2>2. Business Discovery Parameters</h2>
+            </div>
+            <div class="section-desc">
+                The following technical and functional integration questions will be evaluated during the initial discovery phase.
+            </div>
+            
+            <div class="scope-grid">
+                <!-- POS Feasibility -->
+                <div class="scope-box" data-search="pos feasibility system name tech integration">
+                    <h3><i data-lucide="monitor"></i> POS Feasibility</h3>
+                    <div class="scope-question">
+                        Do we have any existing POS support? If so, could you please provide the name of the POS?
+                    </div>
+                    <div class="scope-intro">This will enable our team to understand technical feasibility.</div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="scope-box" data-search="payment type accepted card gpay upi pay apple pay cod cash on delivery paypal">
+                    <h3><i data-lucide="credit-card"></i> Accepted Payments</h3>
+                    <div class="scope-question">
+                        What are the payment types accepted?
+                    </div>
+                    <ul class="scope-list">
+                        <li class="scope-list-item"><i data-lucide="chevron-right"></i> Card Payment Gateway</li>
+                        <li class="scope-list-item"><i data-lucide="chevron-right"></i> Google Pay / UPI Pay</li>
+                        <li class="scope-list-item"><i data-lucide="chevron-right"></i> Apple Pay Native Checkout</li>
+                        <li class="scope-list-item"><i data-lucide="chevron-right"></i> Cash on Delivery (COD)</li>
+                        <li class="scope-list-item"><i data-lucide="chevron-right"></i> PayPal Integration</li>
+                    </ul>
+                </div>
+
+                <!-- Group Ordering -->
+                <div class="scope-box" data-search="group ordering collective shared cart collaboration split payment">
+                    <h3><i data-lucide="users"></i> Group Ordering</h3>
+                    <div class="scope-question">
+                        Do we need to have Group Order?
+                    </div>
+                    <div class="scope-intro">Could you please provide further input/rules on Group Order workflow parameters?</div>
+                </div>
+
+                <!-- Digital Receipt -->
+                <div class="scope-box" data-search="digital receipt generation pdf invoice">
+                    <h3><i data-lucide="file-check"></i> Digital Receipt</h3>
+                    <div class="scope-question">
+                        Digital receipt Generation Required?
+                    </div>
+                    <div class="scope-intro">Generates and logs digital transaction records.</div>
+                </div>
+
+                <!-- Soft Print Integration -->
+                <div class="scope-box" data-search="soft print integration thermal kitchen printer hardware">
+                    <h3><i data-lucide="printer"></i> Soft Print Integration</h3>
+                    <div class="scope-question">
+                        Soft Print Integration Required?
+                    </div>
+                    <div class="scope-intro">Connects to thermal printer and KDS networks.</div>
+                </div>
+
+                <!-- User Features -->
+                <div class="scope-box" data-search="user profile management favorites reordering features">
+                    <h3><i data-lucide="user-check"></i> User & Profile Management</h3>
+                    <div class="scope-question">
+                        Do we need features such as adding to favorites and reordering?
+                    </div>
+                    <div class="scope-intro">Saves customer profile details for custom retention.</div>
+                </div>
+
+                <!-- Delivery Logistics -->
+                <div class="scope-box" data-search="existing delivery partner courier integration API">
+                    <h3><i data-lucide="truck"></i> Delivery Partner</h3>
+                    <div class="scope-question">
+                        Do you have an Existing Delivery Partner?
+                    </div>
+                    <div class="scope-intro">If so, how should the API integration be designed?</div>
+                </div>
+
+                <!-- Address Management -->
+                <div class="scope-box" data-search="address management saved addresses location">
+                    <h3><i data-lucide="map-pin"></i> Address Management</h3>
+                    <div class="scope-question">
+                        Do we need to hold the address details as saved addresses for a user?
+                    </div>
+                    <div class="scope-intro">Saves geolocation data to speed up checkout.</div>
+                </div>
+
+                <!-- Enquiry Contact Form -->
+                <div class="scope-box" data-search="contact form enquiry questions feedback">
+                    <h3><i data-lucide="mail"></i> Contact Form</h3>
+                    <div class="scope-question">
+                        Contact Form Integration For Enquiry Required?
+                    </div>
+                    <div class="scope-intro">Funnels guest queries to operations team.</div>
+                </div>
+
+                <!-- Live Chat -->
+                <div class="scope-box" data-search="live chat instant support customer service">
+                    <h3><i data-lucide="message-square"></i> Live Chat</h3>
+                    <div class="scope-question">
+                        Live chat Required?
+                    </div>
+                    <div class="scope-intro">Enables live instant support tool integration.</div>
+                </div>
+
+                <!-- Email Integration -->
+                <div class="scope-box" data-search="email integration management notifications">
+                    <h3><i data-lucide="mail-check"></i> Email Integration</h3>
+                    <div class="scope-question">
+                        Email Integration Management per user Required?
+                    </div>
+                    <div class="scope-intro">Handles automated custom account alert cycles.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: XOIT Offers -->
+    <div class="section-panel active" id="panel-offers">
+        <div class="section-card">
+            <div class="section-title">
+                <i data-lucide="package"></i>
+                <h2>3. XOIT Offers & Deliverables</h2>
+            </div>
+            <div class="section-desc">
+                Core deliverables and hosting provisions included by XOIT Transformation Pvt Ltd.
+            </div>
+
+            <div class="deliverables-container">
+                <div class="deliverable-item" data-search="domain purchase registration web name">
+                    <i data-lucide="globe"></i>
+                    <div>
+                        Domain Purchase
+                        <span class="deliverable-meta">Complete registration of preferred custom domain.</span>
+                    </div>
+                </div>
+                <div class="deliverable-item" data-search="hosting purchase cloud web server">
+                    <i data-lucide="server"></i>
+                    <div>
+                        Hosting Purchase
+                        <span class="deliverable-meta">Premium infrastructure and hosting environment configuration.</span>
+                    </div>
+                </div>
+                <div class="deliverable-item" data-search="brand kit design logos colors">
+                    <i data-lucide="palette"></i>
+                    <div>
+                        Brand Kit
+                        <span class="deliverable-meta">Basic digital asset styling guidelines and assets.</span>
+                    </div>
+                </div>
+                <div class="deliverable-item" data-search="initial infra setup servers security databases">
+                    <i data-lucide="cpu"></i>
+                    <div>
+                        Initial Infra Setup
+                        <span class="deliverable-meta">Configuration of cloud compute servers and core database engines.</span>
+                    </div>
+                </div>
+                <div class="deliverable-item" data-search="training demo video walk through guides">
+                    <i data-lucide="video"></i>
+                    <div>
+                        Training Demo
+                        <span class="deliverable-meta">Shared walkthrough demos and usage documentation.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Annual Maintenance Coverage (AMC) -->
+    <div class="section-panel active" id="panel-amc">
+        <div class="section-card">
+            <div class="section-title">
+                <i data-lucide="shield-check"></i>
+                <h2>4. Annual Maintenance Coverage (AMC)</h2>
+            </div>
+            <div class="section-desc">
+                Standard maintenance scope. <strong>Note: Site Updates (Quarterly/Yearly) fall under AMC limits.</strong>
+            </div>
+
+            <div class="amc-grid">
+                <div class="amc-card" data-search="malware scan virus cleaner security"><i data-lucide="shield"></i> Malware Scan - Handled</div>
+                <div class="amc-card" data-search="vulnerability fix security patches vulnerabilities"><i data-lucide="shield-alert"></i> Vulnerability Fix - Handled</div>
+                <div class="amc-card" data-search="site maintenance operational support core system"><i data-lucide="layout"></i> Site Maintenance - Covered</div>
+                <div class="amc-card" data-search="domain renewal registrar administration updates"><i data-lucide="key"></i> Domain Renewal</div>
+                <div class="amc-card" data-search="product cost update catalog change price change menu edit"><i data-lucide="tag"></i> Existing Product / Cost Update</div>
+                <div class="amc-card" data-search="security patch upgrade system core updates updates"><i data-lucide="package-plus"></i> Security Patch Upgrade</div>
+                <div class="amc-card" data-search="ddos bot protection cloudflare rules security"><i data-lucide="shield-ban"></i> DDoS / BOT Protection</div>
+                <div class="amc-card" data-search="ssl certificate renewal https verification secure"><i data-lucide="check-circle-2"></i> SSL Certificate Renewal</div>
+                <div class="amc-card" data-search="hosting renewal monitoring server uptime tracking"><i data-lucide="hard-drive"></i> Hosting Renewal & Monitoring</div>
+                <div class="amc-card" data-search="dns management records zone changes server routing"><i data-lucide="git-branch"></i> DNS Management</div>
+                <div class="amc-card" data-search="domain block listing spam blacklist monitoring domain status"><i data-lucide="eye-off"></i> Domain Block Listing</div>
+                <div class="amc-card" data-search="seo search engine optimization optimization rankings"><i data-lucide="trending-up"></i> SEO Check & Audits</div>
+                <div class="amc-card" data-search="broken link monitoring redirect crawler scans"><i data-lucide="link-2-off"></i> Broken Link Audits</div>
+                <div class="amc-card" data-search="uptime monitoring ping alerts notification logs"><i data-lucide="clock"></i> Uptime Monitoring</div>
+                <div class="amc-card" data-search="periodic backup recovery databases cloud copies storage"><i data-lucide="refresh-cw"></i> Periodic Backup</div>
+                <div class="amc-card" data-search="database optimization tables query index speeds"><i data-lucide="database"></i> Database Optimization</div>
+                <div class="amc-card" data-search="cache optimization redis varnish cdn configurations"><i data-lucide="zap"></i> Cache Optimization</div>
+                <div class="amc-card" data-search="image optimization compression loading formats speeds"><i data-lucide="image"></i> Image Optimization</div>
+                <div class="amc-card" data-search="performance monitoring metric latency tracker benchmarks"><i data-lucide="bar-chart-3"></i> Performance Monitoring</div>
+                <div class="amc-card" data-search="sitemap validation search console crawl check index"><i data-lucide="map"></i> Sitemap Validation</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Rules, Assumptions & Exclusions -->
+    <div class="section-panel active" id="panel-rules">
+        <div class="section-card">
+            <div class="section-title">
+                <i data-lucide="info"></i>
+                <h2>5. Terms, Add-Ons & Exclusions</h2>
+            </div>
+            
+            <!-- Project Assumptions -->
+            <div class="assumption-panel" data-search="assumptions purchase of pos client scope gmap subscription maps">
+                <h3><i data-lucide="alert-triangle"></i> Project Assumptions (Client Scope)</h3>
+                <ul class="assumption-list">
+                    <li class="assumption-list-item"><i data-lucide="info"></i> Purchase of POS - Client Scope</li>
+                    <li class="assumption-list-item"><i data-lucide="info"></i> GMAP Subscription - Client Scope</li>
+                </ul>
+            </div>
+
+            <div class="split-grid">
+                <!-- AMC Addon Services -->
+                <div class="addon-panel" data-search="amc addons custom domain email management seo scm promotions brand kit gmap subscription renewal maps">
+                    <h3><i data-lucide="plus-circle"></i> AMC Add-On Services</h3>
+                    <ul class="bullet-list">
+                        <li class="bullet-list-item"><i data-lucide="plus"></i> Custom domain email Management</li>
+                        <li class="bullet-list-item"><i data-lucide="plus"></i> SEO/SCM/Promotional Activities</li>
+                        <li class="bullet-list-item"><i data-lucide="plus"></i> Brand Kit</li>
+                        <li class="bullet-list-item"><i data-lucide="plus"></i> GMAP Subscription - Renewal</li>
+                    </ul>
+                </div>
+
+                <!-- AMC Exclusions -->
+                <div class="exclusion-panel" data-search="amc exclusions infra tier change new feature development page module creation ui ux redesign third party integration theme replacement custom plugin copywriting content creation">
+                    <h3><i data-lucide="slash"></i> AMC Exclusions</h3>
+                    <ul class="bullet-list">
+                        <li class="bullet-list-item"><i data-lucide="x-circle"></i> Infra Tier Change</li>
+                        <li class="bullet-list-item"><i data-lucide="x-circle"></i> New feature development</li>
+                        <li class="bullet-list-item"><i data-lucide="x-circle"></i> New page/module creation</li>
+                        <li class="bullet-list-item"><i data-lucide="x-circle"></i> UI/UX redesign</li>
+                        <li class="bullet-list-item"><i data-lucide="x-circle"></i> Third-party integration development</li>
+                        <li class="bullet-list-item"><i data-lucide="x-circle"></i> Major theme replacement</li>
+                        <li class="bullet-list-item"><i data-lucide="x-circle"></i> Custom plugin development</li>
+                        <li class="bullet-list-item"><i data-lucide="x-circle"></i> Content creation/copywriting</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Section 6: Estimation & Timeline -->
+    <div class="section-panel active" id="panel-estimation">
+        <div class="section-card">
+            <div class="section-title">
+                <i data-lucide="calculator"></i>
+                <h2>6. Project Estimation & Timeline</h2>
+            </div>
+            <div class="section-desc">
+                High-level roadmap and project cost parameters for implementation and maintenance.
+            </div>
+
+            <!-- Implementation Timeline -->
+            <div class="roadmap-panel" style="margin-bottom: 30px;">
+                <h3><i data-lucide="calendar"></i> Implementation Roadmap</h3>
+                <div class="timeline">
+                    <div class="timeline-item" data-search="phase 1 discovery specification requirements wireframes">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Phase 1: Discovery & Specifications</span>
+                            <span class="timeline-duration">Weeks 1 - 2</span>
+                        </div>
+                        <div class="timeline-desc">
+                            Technical feasibility audit (POS systems, delivery API), UX/UI design wireframes, integration specs.
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-search="phase 2 core development setup database modules">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Phase 2: Core Development</span>
+                            <span class="timeline-duration">Weeks 3 - 6</span>
+                        </div>
+                        <div class="timeline-desc">
+                            Database schema, core user authentication (OTP/GMAIL), menu/cart/order modules setup, landing page development.
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-search="phase 3 integrations custom features gateway printer">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Phase 3: Integrations & Payments</span>
+                            <span class="timeline-duration">Weeks 7 - 8</span>
+                        </div>
+                        <div class="timeline-desc">
+                            Payment gateways (Card, GPay, Apple Pay, COD, PayPal), soft print/printer network setups, delivery API logistics.
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-search="phase 4 qa deployment testing training launch">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Phase 4: Launch & Handover</span>
+                            <span class="timeline-duration">Weeks 9 - 10</span>
+                        </div>
+                        <div class="timeline-desc">
+                            Quality assurance, staff training demo, domain/hosting deployment configurations, final delivery handover.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cost Estimates -->
+            <div class="cost-panel" data-search="cost estimates pricing development fee amc maintenance fee subscriptions">
+                <h3><i data-lucide="tag"></i> Budgetary Estimate</h3>
+                <div class="cost-table-container">
+                    <table class="cost-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Billing Type</th>
+                                <th>Scope Coverage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>One-time Development</strong></td>
+                                <td>Milestone-based</td>
+                                <td>Phase 1-4 deliverables, deployment, initial setup, handover documentation.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Annual Maintenance (AMC)</strong></td>
+                                <td>Yearly Recurring</td>
+                                <td>Malware scans, security patching, quarterly system updates, uptime checks, database optimizations.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client Subscriptions</strong></td>
+                                <td>Paid Directly by Client</td>
+                                <td>Google Maps API, POS hardware/software licenses, payment gateway processing fees.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 XOIT Transformation Pvt Ltd. All rights reserved.</p>
+        <p style="font-size: 11px; margin-top: 6px; opacity: 0.6;">Restaurant Digital Ordering Platform &bull; Professional Project Blueprint Scope</p>
+    </footer>
+</div> <!-- Closes .container -->
+</main> <!-- Closes .main-content -->
+</div> <!-- Closes .app-layout -->
+
+<script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Tabs Navigation
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.section-panel');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetTab = tab.getAttribute('data-tab');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            panels.forEach(panel => {
+                if (targetTab === 'all') {
+                    panel.classList.add('active');
+                } else {
+                    const panelId = `panel-${targetTab}`;
+                    if (panel.id === panelId) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                }
+            });
+        });
+    });
+
+    // Search and Filter Logic
+    const searchInput = document.getElementById('search-input');
+    
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        
+        // Targetable blocks to filter
+        const boxes = document.querySelectorAll('.scope-box');
+        const delCards = document.querySelectorAll('.deliverable-item');
+        const amcItems = document.querySelectorAll('.amc-card');
+        const assumptionsBox = document.querySelector('.assumption-panel');
+        const addonBox = document.querySelector('.addon-panel');
+        const exclusionBox = document.querySelector('.exclusion-panel');
+        const roadmapPanel = document.querySelector('.roadmap-panel');
+        const costPanel = document.querySelector('.cost-panel');
+
+        if (query === '') {
+            // Restore everything
+            boxes.forEach(b => b.style.opacity = '1');
+            delCards.forEach(c => c.style.opacity = '1');
+            amcItems.forEach(i => i.style.opacity = '1');
+            assumptionsBox.style.opacity = '1';
+            addonBox.style.opacity = '1';
+            exclusionBox.style.opacity = '1';
+            if (roadmapPanel) roadmapPanel.style.opacity = '1';
+            if (costPanel) costPanel.style.opacity = '1';
+            return;
+        }
+
+        // Discovery Boxes
+        boxes.forEach(box => {
+            const searchData = box.getAttribute('data-search') || '';
+            const textContent = box.textContent.toLowerCase();
+            if (searchData.includes(query) || textContent.includes(query)) {
+                box.style.opacity = '1';
+            } else {
+                box.style.opacity = '0.15';
+            }
+        });
+
+        // Deliverables
+        delCards.forEach(card => {
+            const searchData = card.getAttribute('data-search') || '';
+            const textContent = card.textContent.toLowerCase();
+            if (searchData.includes(query) || textContent.includes(query)) {
+                card.style.opacity = '1';
+            } else {
+                card.style.opacity = '0.15';
+            }
+        });
+
+        // AMC Items
+        amcItems.forEach(item => {
+            const searchData = item.getAttribute('data-search') || '';
+            const textContent = item.textContent.toLowerCase();
+            if (searchData.includes(query) || textContent.includes(query)) {
+                item.style.opacity = '1';
+            } else {
+                item.style.opacity = '0.15';
+            }
+        });
+
+        // Assumptions, Addons, Exclusions, Roadmap, Cost
+        [assumptionsBox, addonBox, exclusionBox, roadmapPanel, costPanel].forEach(block => {
+            if (!block) return;
+            const searchData = block.getAttribute('data-search') || '';
+            const textContent = block.textContent.toLowerCase();
+            if (searchData.includes(query) || textContent.includes(query)) {
+                block.style.opacity = '1';
+            } else {
+                block.style.opacity = '0.15';
+            }
+        });
+    });
+</script>
+</body>
+</html>
