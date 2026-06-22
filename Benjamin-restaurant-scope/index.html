@@ -1599,6 +1599,23 @@
                     }
                 }
             });
+
+            // Smooth scroll to selected section or top
+            setTimeout(() => {
+                if (targetTab === 'all') {
+                    const mainContent = document.querySelector('.main-content');
+                    if (mainContent && window.innerWidth >= 1024) {
+                        mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                } else {
+                    const activePanel = document.getElementById(`panel-${targetTab}`);
+                    if (activePanel) {
+                        activePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }, 50);
         });
     });
 
