@@ -395,6 +395,10 @@
             margin-bottom: 2rem;
         }
 
+        .dashboard-layout.no-team-share {
+            grid-template-columns: 1fr;
+        }
+
         @media (max-width: 1000px) {
             .dashboard-layout {
                 grid-template-columns: 1fr;
@@ -1760,7 +1764,7 @@
             </div>
 
             <!-- ANALYTICS PLOTS -->
-            <div class="dashboard-layout">
+            <div class="dashboard-layout" id="dashboard-plots-layout">
                 <div class="card">
                     <div class="card-title">
                         Effort Distribution by Module
@@ -1770,7 +1774,7 @@
                         <!-- JS renders bars here -->
                     </div>
                 </div>
-                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="card" id="team-share-card" style="display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         <div class="card-title">
                             Team Share
@@ -2442,6 +2446,20 @@
             if (apiMenu) apiMenu.style.display = 'flex';
             if (estMenu) estMenu.style.display = isAdmin ? 'flex' : 'none';
             if (resMenu) resMenu.style.display = isAdmin ? 'flex' : 'none';
+
+            // Hide Team Share card from non-admin view
+            const teamShareCard = document.getElementById("team-share-card");
+            const dashboardPlotsLayout = document.getElementById("dashboard-plots-layout");
+            if (teamShareCard) {
+                teamShareCard.style.display = isAdmin ? 'flex' : 'none';
+            }
+            if (dashboardPlotsLayout) {
+                if (isAdmin) {
+                    dashboardPlotsLayout.classList.remove('no-team-share');
+                } else {
+                    dashboardPlotsLayout.classList.add('no-team-share');
+                }
+            }
         }
 
         // 1. MODULES AND SCOPE GRID
