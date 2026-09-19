@@ -20,7 +20,10 @@ export interface VisualItem {
   icon?: string;
   image?: string;
   color?: string;
-  attribute?: string; // e.g. 'fruit', 'vegetable', 'red', 'blue', 'heavy', 'light', 'tall', 'short'
+  attribute?: string; // e.g. 'fruit', 'vegetable', 'red', 'blue', 'heavy', 'light', 'tall', 'short', 'big', 'small'
+  visualScale?: 'giant' | 'big' | 'medium' | 'small' | 'tiny' | 'tall' | 'short' | 'long';
+  heightPx?: number;
+  widthPx?: number;
 }
 
 export interface Question {

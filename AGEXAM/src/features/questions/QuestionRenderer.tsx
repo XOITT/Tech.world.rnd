@@ -9,7 +9,7 @@ import { MultipleChoiceWidget } from './MultipleChoiceWidget';
 import { Character } from '../../components/character/Character';
 import { Button } from '../../components/common/Button';
 import { soundService } from '../../services/soundService';
-import { Sparkles, HelpCircle, ArrowRight, RotateCcw } from 'lucide-react';
+import { Sparkles, HelpCircle, ArrowRight, RotateCcw, BookOpen } from 'lucide-react';
 
 interface QuestionRendererProps {
   question: Question;
@@ -86,7 +86,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       return {
         type: 'swetha' as const,
         pose: 'wave' as const,
-        speech: '😊 Almost there! Let\'s look at why together.',
+        speech: '😊 Almost there! Let\'s look at the clue together.',
         animation: 'wiggle' as const,
       };
     }
@@ -112,23 +112,37 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         />
       </div>
 
-      {/* Question Card */}
-      <div className="w-full bg-white rounded-3xl border-3 border-amber-300 shadow-playful p-5 sm:p-6 mb-5">
-        {/* Question Header */}
-        <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-amber-100">
-          <span className="text-xs sm:text-sm font-bubble font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
-            {question.title}
-          </span>
-          <span className="text-xs sm:text-sm font-bubble font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300 flex items-center gap-1">
+      {/* Coursebook-Themed Question Card */}
+      <div className="w-full bg-white rounded-3xl border-3 border-amber-300 shadow-playful p-5 sm:p-6 mb-5 relative overflow-hidden">
+        {/* Coursebook Header Ribbon */}
+        <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b-2 border-dashed border-amber-200">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 bg-amber-100 rounded-xl text-amber-800">
+              <BookOpen className="w-4 h-4" />
+            </span>
+            <div className="flex flex-col">
+              <span className="text-xs sm:text-sm font-bubble font-bold text-amber-900">
+                {question.title}
+              </span>
+              {question.bookReference && (
+                <span className="text-[10px] font-bubble font-semibold text-slate-500">
+                  {question.bookReference}
+                </span>
+              )}
+            </div>
+          </div>
+          <span className="text-xs sm:text-sm font-bubble font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300 flex items-center gap-1 shadow-xs shrink-0">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
             +{question.xpReward} XP
           </span>
         </div>
 
-        {/* Question Instruction */}
-        <h3 className="text-lg sm:text-xl font-bubble font-bold text-slate-900 mb-5 leading-snug">
-          {question.instruction}
-        </h3>
+        {/* Question Instruction Banner */}
+        <div className="bg-sky-50/80 rounded-2xl p-3.5 border border-sky-200 mb-5">
+          <h3 className="text-base sm:text-lg font-bubble font-bold text-sky-950 leading-snug">
+            {question.instruction}
+          </h3>
+        </div>
 
         {/* Interactive Widget */}
         <div className="w-full mb-2">{renderWidget()}</div>
@@ -148,27 +162,26 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
               className="w-full"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Try Again! 🌟</span>
+              <span>Try Again</span>
             </Button>
           </div>
         )}
 
-        {/* Correct Answer Success Box */}
+        {/* Correct Celebration & Continue Button */}
         {answeredState === 'correct' && (
-          <div className="mt-5 p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-300 animate-fade-in text-center">
-            <div className="text-base sm:text-lg font-bubble font-bold text-emerald-900 mb-1">
-              ⭐ Wonderful understanding! (+{question.xpReward} XP)
+          <div className="mt-5 p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-300 animate-fade-in">
+            <div className="flex items-center gap-2 text-emerald-900 font-bubble font-bold text-base mb-1">
+              <Sparkles className="w-5 h-5 text-emerald-600" />
+              <span>Outstanding! Correct!</span>
             </div>
-            <p className="text-xs sm:text-sm text-emerald-700 mb-3">
-              {question.whyExplanation}
-            </p>
+            <p className="text-sm font-body text-emerald-800 mb-4">{question.encouragement}</p>
             <Button
-              variant="success"
+              variant="primary"
               size="lg"
               onClick={handleContinue}
-              className="w-full text-lg py-3.5"
+              className="w-full py-4 text-lg shadow-playful"
             >
-              <span>Continue Adventure</span>
+              <span>Continue</span>
               <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
