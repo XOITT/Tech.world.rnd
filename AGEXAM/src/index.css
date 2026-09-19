@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-primary: #f59e0b;
+    --brand-secondary: #0ea5e9;
+    --brand-accent: #8b5cf6;
+  }
+
+  body {
+    background: linear-gradient(180deg, #f0fdf4 0%, #eff6ff 40%, #fefce8 100%);
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom 3D Tactile Game Buttons */
+.btn-3d {
+  position: relative;
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-3d:active {
+  transform: translateY(4px);
+}
+
+/* Candy Button Colors */
+.btn-3d-amber {
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  border-bottom: 5px solid #b45309;
+  color: #78350f;
+}
+.btn-3d-amber:active {
+  border-bottom: 1px solid #b45309;
+}
+
+.btn-3d-sky {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  border-bottom: 5px solid #0369a1;
+  color: #ffffff;
+}
+.btn-3d-sky:active {
+  border-bottom: 1px solid #0369a1;
+}
+
+.btn-3d-emerald {
+  background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+  border-bottom: 5px solid #15803d;
+  color: #ffffff;
+}
+.btn-3d-emerald:active {
+  border-bottom: 1px solid #15803d;
+}
+
+.btn-3d-purple {
+  background: linear-gradient(180deg, #c084fc 0%, #7e22ce 100%);
+  border-bottom: 5px solid #6b21a8;
+  color: #ffffff;
+}
+.btn-3d-purple:active {
+  border-bottom: 1px solid #6b21a8;
+}
+
+.btn-3d-rose {
+  background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%);
+  border-bottom: 5px solid #be123c;
+  color: #ffffff;
+}
+.btn-3d-rose:active {
+  border-bottom: 1px solid #be123c;
+}
+
+.btn-3d-white {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-bottom: 5px solid #cbd5e1;
+  color: #334155;
+}
+.btn-3d-white:active {
+  border-bottom: 2px solid #cbd5e1;
+}
+
+/* Floating Animation */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-gentle {
+  animation: floatGentle 3s ease-in-out infinite;
+}
+
+/* Cloud drift */
+@keyframes cloudDrift {
+  0% { transform: translateX(-10%); }
+  100% { transform: translateX(110%); }
+}
+
+.cloud-anim-1 {
+  animation: cloudDrift 45s linear infinite;
+}
+.cloud-anim-2 {
+  animation: cloudDrift 60s linear infinite -20s;
+}
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
